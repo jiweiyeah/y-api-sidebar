@@ -222,7 +222,7 @@ export const SystemSettings = () => {
 
   const { data: chatModels, isLoading: isChatModelsLoading } = useQuery({
     queryKey: ["fetchChatModelsForImport"],
-    queryFn: () => fetchChatModels({ returnEmpty: true }),
+    queryFn: () => fetchChatModels(),
     enabled: dynamicModalOpen
   })
 

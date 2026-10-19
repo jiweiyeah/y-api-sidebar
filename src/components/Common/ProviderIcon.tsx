@@ -1,5 +1,5 @@
 import { ChromeIcon, CpuIcon } from "lucide-react"
-import { OllamaIcon } from "../Icons/Ollama"
+import { YApiIcon } from "../Icons/YApi"
 import { FireworksMonoIcon } from "../Icons/Fireworks"
 import { GroqMonoIcon } from "../Icons/Groq"
 import { LMStudioIcon } from "../Icons/LMStudio"
@@ -46,7 +46,8 @@ export const ProviderIcons = ({
     case "chrome":
       return <ChromeIcon className={className} />
     case "custom":
-      return <CpuIcon className={className} />
+    case "yapi":
+      return <YApiIcon className={className} />
     case "atlascloud":
       return <AtlasCloudIcon className={className} />
     case "fireworks":
@@ -129,6 +130,6 @@ export const ProviderIcons = ({
     case "webwright":
       return <CpuIcon className={className} />
     default:
-      return <OllamaIcon className={className} />
+      return <YApiIcon className={className} />
   }
 }

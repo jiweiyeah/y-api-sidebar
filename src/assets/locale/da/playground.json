@@ -1,32 +1,37 @@
 {
-    "ollamaState": {
-        "searching": "Søger efter din Ollama 🦙",
-        "running": "Ollama kør 🦙",
-        "notRunning": "Kan ikke oprette forbindelse til Ollama 🦙",
-        "connectionError": "Det lader til, at du har en forbindelsesfejl. Se venligst denne <anchor>dokumentation</anchor> for fejlfinding."
+  "ollamaState": {
+    "searching": "Søger efter din Ollama 🦙",
+    "running": "Ollama kør 🦙",
+    "notRunning": "Kan ikke oprette forbindelse til Ollama 🦙",
+    "connectionError": "Det lader til, at du har en forbindelsesfejl. Se venligst denne <anchor>dokumentation</anchor> for fejlfinding."
+  },
+  "formError": {
+    "noModel": "Vælg venligst en model",
+    "noEmbeddingModel": "Vælg venligst en embedding model under indstillinger > RAG side"
+  },
+  "form": {
+    "textarea": {
+      "placeholder": "Skriv en besked..."
     },
-    "formError": {
-        "noModel": "Vælg venligst en model",
-        "noEmbeddingModel": "Vælg venligst en embedding model under indstillinger > RAG side"
-    },
-    "form": {
-        "textarea": {
-            "placeholder": "Skriv en besked..."
-        },
-        "webSearch": {
-            "on": "Til",
-            "off": "Fra"
-        }
-    },
-    "tooltip": {
-        "searchInternet": "Søg Internettet",
-        "speechToText": "Tal til Tekst",
-        "uploadImage": "Upload Billed",
-        "stopStreaming": "Stop Streaming",
-        "knowledge": "Viden",
-        "clearContext": "Ryd Kontekst"
-    },
-    "sendWhenEnter": "Søg, når Indtast trykkes",
-    "welcome": "Hej! Hvordan kan jeg hjælpe dig i dag?",
-    "useOCR": "Udtræk tekst fra billede (OCR)"
+    "webSearch": {
+      "on": "Til",
+      "off": "Fra"
+    }
+  },
+  "tooltip": {
+    "searchInternet": "Søg Internettet",
+    "speechToText": "Tal til Tekst",
+    "uploadImage": "Upload Billed",
+    "stopStreaming": "Stop Streaming",
+    "knowledge": "Viden",
+    "clearContext": "Ryd Kontekst"
+  },
+  "sendWhenEnter": "Søg, når Indtast trykkes",
+  "welcome": "Hej! Hvordan kan jeg hjælpe dig i dag?",
+  "useOCR": "Udtræk tekst fra billede (OCR)",
+  "yapiSetup": {
+    "hint": "Add your Y-API API key to start chatting with any page.",
+    "button": "Add API key",
+    "getKey": "Get a key at Y-API"
+  }
 }

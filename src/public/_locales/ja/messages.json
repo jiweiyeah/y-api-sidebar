@@ -1,9 +1,9 @@
 {
   "extName": {
-    "message": "Page Assist - ローカルAIモデル用のWeb UI"
+    "message": "Y-API Sidebar - あらゆるページの AI アシスタント"
   },
   "extDescription": {
-    "message": "ローカルで実行中のAIモデルを使って、Webブラウジングをアシストします。"
+    "message": "あらゆるページについて AI に質問。Y-API のキーを入力するだけで使え、ローカル環境は不要です。"
   },
   "openSidePanelToChat": {
     "message": "サイドパネルを開いてチャットする"

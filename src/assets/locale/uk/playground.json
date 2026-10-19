@@ -1,32 +1,37 @@
 {
-    "ollamaState": {
-        "searching": "Пошук вашого Ollama 🦙",
-        "running": "Ollama працює 🦙",
-        "notRunning": "Неможливо підключитися до Ollama 🦙",
-        "connectionError": "Здається, у вас виникла проблема з підключенням. Будь ласка, зверніться до цієї документації<anchor> для усунення несправностей.</anchor>"
+  "ollamaState": {
+    "searching": "Пошук вашого Ollama 🦙",
+    "running": "Ollama працює 🦙",
+    "notRunning": "Неможливо підключитися до Ollama 🦙",
+    "connectionError": "Здається, у вас виникла проблема з підключенням. Будь ласка, зверніться до цієї документації<anchor> для усунення несправностей.</anchor>"
+  },
+  "formError": {
+    "noModel": "Виберіть модель",
+    "noEmbeddingModel": "Налаштуйте модель вкладень на сторінці Налаштування > RAG"
+  },
+  "form": {
+    "textarea": {
+      "placeholder": "Введіть повідомлення..."
     },
-    "formError": {
-        "noModel": "Виберіть модель",
-        "noEmbeddingModel": "Налаштуйте модель вкладень на сторінці Налаштування > RAG"
-    },
-    "form": {
-        "textarea": {
-            "placeholder": "Введіть повідомлення..."
-        },
-        "webSearch": {
-            "on": "Увімкнено",
-            "off": "Вимкнено"
-        }
-    },
-    "tooltip": {
-        "searchInternet": "Пошук в Інтернеті",
-        "speechToText": "Голос у текст",
-        "uploadImage": "Завантажити зображення",
-        "stopStreaming": "Зупинити трансляцію",
-        "knowledge": "Знання",
-        "clearContext": "Очистити контекст"
-    },
-    "sendWhenEnter": "Надсилати при натисканні Enter",
-    "welcome": "Вітаю! Як я можу допомогти вам сьогодні?",
-    "useOCR": "Витягти текст із зображення (OCR)"
+    "webSearch": {
+      "on": "Увімкнено",
+      "off": "Вимкнено"
+    }
+  },
+  "tooltip": {
+    "searchInternet": "Пошук в Інтернеті",
+    "speechToText": "Голос у текст",
+    "uploadImage": "Завантажити зображення",
+    "stopStreaming": "Зупинити трансляцію",
+    "knowledge": "Знання",
+    "clearContext": "Очистити контекст"
+  },
+  "sendWhenEnter": "Надсилати при натисканні Enter",
+  "welcome": "Вітаю! Як я можу допомогти вам сьогодні?",
+  "useOCR": "Витягти текст із зображення (OCR)",
+  "yapiSetup": {
+    "hint": "Додайте ключ API Y-API, щоб спілкуватися на будь-якій сторінці.",
+    "button": "Додати ключ",
+    "getKey": "Отримати ключ у Y-API"
+  }
 }

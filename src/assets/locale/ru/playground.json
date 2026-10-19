@@ -1,32 +1,37 @@
 {
-    "ollamaState": {
-        "searching": "Поиск вашего Ollama 🦙",
-        "running": "Ollama работает 🦙",
-        "notRunning": "Не удалось подключиться к Ollama 🦙",
-        "connectionError": "Похоже, у вас возникла ошибка соединения. Пожалуйста, обратитесь к этой <anchor>документации</anchor> для устранения неисправностей."
+  "ollamaState": {
+    "searching": "Поиск вашего Ollama 🦙",
+    "running": "Ollama работает 🦙",
+    "notRunning": "Не удалось подключиться к Ollama 🦙",
+    "connectionError": "Похоже, у вас возникла ошибка соединения. Пожалуйста, обратитесь к этой <anchor>документации</anchor> для устранения неисправностей."
+  },
+  "formError": {
+    "noModel": "Пожалуйста, выберите модель",
+    "noEmbeddingModel": "Пожалуйста, установите модель вложения на странице Настройки > RAG"
+  },
+  "form": {
+    "textarea": {
+      "placeholder": "Введите сообщение..."
     },
-    "formError": {
-        "noModel": "Пожалуйста, выберите модель",
-        "noEmbeddingModel": "Пожалуйста, установите модель вложения на странице Настройки > RAG"
-    },
-    "form": {
-        "textarea": {
-            "placeholder": "Введите сообщение..."
-        },
-        "webSearch": {
-            "on": "Вкл",
-            "off": "Выкл"
-        }
-    },
-    "tooltip": {
-        "searchInternet": "Поиск в Интернете",
-        "speechToText": "Речь в текст",
-        "uploadImage": "Загрузить изображение",
-        "stopStreaming": "Остановить поток",
-        "knowledge": "Знание",
-        "clearContext": "Очистить контекст"
-    },
-    "sendWhenEnter": "Отправить при нажатии клавиши Enter",
-    "welcome": "Здравствуйте! Как я могу помочь вам сегодня?",
-    "useOCR": "Извлечь текст из изображения (OCR)"
+    "webSearch": {
+      "on": "Вкл",
+      "off": "Выкл"
+    }
+  },
+  "tooltip": {
+    "searchInternet": "Поиск в Интернете",
+    "speechToText": "Речь в текст",
+    "uploadImage": "Загрузить изображение",
+    "stopStreaming": "Остановить поток",
+    "knowledge": "Знание",
+    "clearContext": "Очистить контекст"
+  },
+  "sendWhenEnter": "Отправить при нажатии клавиши Enter",
+  "welcome": "Здравствуйте! Как я могу помочь вам сегодня?",
+  "useOCR": "Извлечь текст из изображения (OCR)",
+  "yapiSetup": {
+    "hint": "Добавьте ключ API Y-API, чтобы общаться на любой странице.",
+    "button": "Добавить ключ",
+    "getKey": "Получить ключ в Y-API"
+  }
 }

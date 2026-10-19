@@ -32,14 +32,14 @@ export type McpToolValidationResult = {
 }
 
 const MCP_CLIENT_INFO: Implementation = {
-  name: "page-assist",
+  name: "y-api-sidebar",
   version: "1",
-  description: "Use your locally running AI models to assist you in your web browsing",
-  title: "Page Assist",
-  websiteUrl: "https://pageassist.xyz",
+  description: "Ask AI about any page, powered by Y-API",
+  title: "Y-API Sidebar",
+  websiteUrl: "https://y-api.bestvirtualgoods.com",
   icons: [
     {
-      src: "https://pageassist.xyz/favicon.ico",
+      src: "https://y-api.bestvirtualgoods.com/favicon-32.png",
       mimeType: "image/x-icon",
       theme: "dark"
     }

@@ -23,7 +23,7 @@ export const SettingTitle = () => {
     queryKey: ["fetchTitleSettings"],
     queryFn: async () => {
       const [models, enabled, prompt, model] = await Promise.all([
-        fetchChatModels({ returnEmpty: true }),
+        fetchChatModels(),
         isTitleGenEnabled(),
         getTitleGenerationPrompt(),
         titleGenerationModel() 

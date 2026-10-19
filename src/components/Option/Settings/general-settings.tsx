@@ -72,11 +72,6 @@ export const GeneralSettings = () => {
   const [sendNotificationAfterIndexing, setSendNotificationAfterIndexing] =
     useStorage("sendNotificationAfterIndexing", false)
 
-  const [checkOllamaStatus, setCheckOllamaStatus] = useStorage(
-    "checkOllamaStatus",
-    true
-  )
-
   const [checkWideMode, setCheckWideMode] = useStorage("checkWideMode", false)
 
   const [openReasoning, setOpenReasoning] = useStorage("openReasoning", false)
@@ -302,18 +297,8 @@ export const GeneralSettings = () => {
         />
       </div>
 
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t("generalSettings.settings.ollamaStatus.label")}
-          </span>
-        </div>
-
-        <Switch
-          checked={checkOllamaStatus}
-          onChange={(checked) => setCheckOllamaStatus(checked)}
-        />
-      </div>
+      {/* Local Ollama status probing is not part of Y-API Sidebar, so the
+          toggle is gone. The storage key still defaults to false above. */}
 
       <div className="flex flex-row justify-between">
         <div className="inline-flex items-center gap-2">

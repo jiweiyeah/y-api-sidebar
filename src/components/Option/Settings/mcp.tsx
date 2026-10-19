@@ -570,7 +570,7 @@ export const MCPSettingsApp = () => {
           }}
           footer={() => (
             <a
-              href="https://docs.pageassist.xyz/features/mcp.html"
+              href="https://modelcontextprotocol.io/docs/getting-started/intro"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">

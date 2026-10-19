@@ -1,29 +1,29 @@
 {
-    "extName": {
-        "message": "Page Assist - 本地 AI 模型的網頁介面"
-    },
-    "extDescription": {
-        "message": "使用本地運行的 AI 模型來協助您的網頁瀏覽。"
-    },
-    "openSidePanelToChat": {
-        "message": "開啟側邊面板聊天"
-    },
-    "openOptionToChat": {
-        "message": "開啟網頁介面聊天"
-    },
-    "contextSummarize": {
-        "message": "總結"
-    },
-    "contextExplain": {
-        "message": "解釋"
-    },
-    "contextRephrase": {
-        "message": "重寫"
-    },
-    "contextTranslate": {
-        "message": "翻譯"
-    },
-    "contextCustom": {
-        "message": "自訂"
-    }
+  "extName": {
+    "message": "Y-API Sidebar - 任意網頁的 AI 助手"
+  },
+  "extDescription": {
+    "message": "一鍵向 AI 提問目前網頁。填入 Y-API 金鑰即可使用，無需本機部署。"
+  },
+  "openSidePanelToChat": {
+    "message": "開啟側邊面板聊天"
+  },
+  "openOptionToChat": {
+    "message": "開啟網頁介面聊天"
+  },
+  "contextSummarize": {
+    "message": "總結"
+  },
+  "contextExplain": {
+    "message": "解釋"
+  },
+  "contextRephrase": {
+    "message": "重寫"
+  },
+  "contextTranslate": {
+    "message": "翻譯"
+  },
+  "contextCustom": {
+    "message": "自訂"
+  }
 }

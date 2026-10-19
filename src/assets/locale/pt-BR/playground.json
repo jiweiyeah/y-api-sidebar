@@ -1,32 +1,37 @@
 {
-    "ollamaState": {
-        "searching": "Procurando por seu Ollama 🦙",
-        "running": "Ollama está em execução 🦙",
-        "notRunning": "Não foi possível conectar ao Ollama 🦙",
-        "connectionError": "Parece que você está tendo um erro de conexão. Consulte esta <anchor>documentação</anchor> para solucionar o problema."
+  "ollamaState": {
+    "searching": "Procurando por seu Ollama 🦙",
+    "running": "Ollama está em execução 🦙",
+    "notRunning": "Não foi possível conectar ao Ollama 🦙",
+    "connectionError": "Parece que você está tendo um erro de conexão. Consulte esta <anchor>documentação</anchor> para solucionar o problema."
+  },
+  "formError": {
+    "noModel": "Por favor, selecione um modelo",
+    "noEmbeddingModel": "Por favor, configure um modelo de incorporação na página Configurações > RAG"
+  },
+  "form": {
+    "textarea": {
+      "placeholder": "Digite uma mensagem..."
     },
-    "formError": {
-        "noModel": "Por favor, selecione um modelo",
-        "noEmbeddingModel": "Por favor, configure um modelo de incorporação na página Configurações > RAG"
-    },
-    "form": {
-        "textarea": {
-            "placeholder": "Digite uma mensagem..."
-        },
-        "webSearch": {
-            "on": "Ligado",
-            "off": "Desligado"
-        }
-    },
-    "tooltip": {
-        "searchInternet": "Pesquisar na Internet",
-        "speechToText": "Fala para Texto",
-        "uploadImage": "Carregar Imagem",
-        "stopStreaming": "Parar Streaming",
-        "knowledge": "Conhecimento",
-        "clearContext": "Limpar Contexto"
-    },
-    "sendWhenEnter": "Enviar ao pressionar Enter",
-    "welcome": "Olá! Como posso ajudar você hoje?",
-    "useOCR": "Extrair texto da imagem (OCR)"
+    "webSearch": {
+      "on": "Ligado",
+      "off": "Desligado"
+    }
+  },
+  "tooltip": {
+    "searchInternet": "Pesquisar na Internet",
+    "speechToText": "Fala para Texto",
+    "uploadImage": "Carregar Imagem",
+    "stopStreaming": "Parar Streaming",
+    "knowledge": "Conhecimento",
+    "clearContext": "Limpar Contexto"
+  },
+  "sendWhenEnter": "Enviar ao pressionar Enter",
+  "welcome": "Olá! Como posso ajudar você hoje?",
+  "useOCR": "Extrair texto da imagem (OCR)",
+  "yapiSetup": {
+    "hint": "Adicione sua chave de API Y-API para conversar com qualquer página.",
+    "button": "Adicionar chave",
+    "getKey": "Obter uma chave na Y-API"
+  }
 }

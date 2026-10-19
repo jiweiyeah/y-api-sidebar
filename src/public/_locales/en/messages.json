@@ -1,29 +1,29 @@
 {
-    "extName": {
-        "message": "Page Assist - A Web UI for Local AI Models"
-    },
-    "extDescription": {
-        "message": "Use your locally running AI models to assist you in your web browsing."
-    },
-    "openSidePanelToChat": {
-        "message": "Open Side Panel to Chat"
-    },
-    "openOptionToChat": {
-        "message": "Open Web UI to Chat"
-    },
-    "contextSummarize": {
-        "message": "Summarize"
-    },
-    "contextExplain": {
-        "message": "Explain"
-    },
-    "contextRephrase": {
-        "message": "Rephrase"
-    },
-    "contextTranslate": {
-        "message": "Translate"
-    },
-    "contextCustom": {
-        "message": "Custom"
-    }
+  "extName": {
+    "message": "Y-API Sidebar - AI assistant for any page"
+  },
+  "extDescription": {
+    "message": "Ask AI about any page. Bring your own Y-API key, no local setup required."
+  },
+  "openSidePanelToChat": {
+    "message": "Open Side Panel to Chat"
+  },
+  "openOptionToChat": {
+    "message": "Open Web UI to Chat"
+  },
+  "contextSummarize": {
+    "message": "Summarize"
+  },
+  "contextExplain": {
+    "message": "Explain"
+  },
+  "contextRephrase": {
+    "message": "Rephrase"
+  },
+  "contextTranslate": {
+    "message": "Translate"
+  },
+  "contextCustom": {
+    "message": "Custom"
+  }
 }

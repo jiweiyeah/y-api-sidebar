@@ -1,11 +1,10 @@
 import { ProviderIcons } from "@/components/Common/ProviderIcon"
-import { cleanUrl } from "@/libs/clean-url"
 import { useStorage } from "@plasmohq/storage/hook"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { Avatar, Modal, Select } from "antd"
-import { Loader2, MousePointerClick, PlugZap, RotateCcw } from "lucide-react"
+import { Loader2, MousePointerClick, PlugZap } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Trans, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 import { useMessage } from "~/hooks/useMessage"
 import { useStoreMessageOption } from "@/store/option"
 import {
@@ -18,18 +17,11 @@ import {
   inspectCurrentPageWebMcpTools,
   isWebMcpAvailable
 } from "@/services/webmcp"
-import {
-  getOllamaURL,
-  isOllamaRunning,
-  setOllamaURL as saveOllamaURL,
-  fetchChatModels
-} from "~/services/ollama"
+import { fetchChatModels } from "~/services/ollama"
+import { Y_API_SITE_URL } from "@/utils/oai-api-providers"
 
 export const EmptySidePanel = () => {
-  const [ollamaURL, setOllamaURL] = useState<string>("")
   const { t } = useTranslation(["playground", "common"])
-  const queryClient = useQueryClient()
-  const [checkOllamaStatus] = useStorage("checkOllamaStatus", true)
   const { pageAction, setPageAction, webMcp, setWebMcp } =
     useStoreMessageOption()
   const [pageActionMasterEnabled] = useStorage("pageActionEnabled", true)
@@ -109,33 +101,12 @@ export const EmptySidePanel = () => {
     return () => clearInterval(interval)
   }, [showInstallModal])
 
-  const {
-    data: ollamaInfo,
-    status: ollamaStatus,
-    refetch,
-    isRefetching
-  } = useQuery({
-    queryKey: ["ollamaStatus", checkOllamaStatus],
-    queryFn: async () => {
-      const ollamaURL = await getOllamaURL()
-      const isOk = await isOllamaRunning()
-      const models = await fetchChatModels({ returnEmpty: false })
-      queryClient.invalidateQueries({
-        queryKey: ["getAllModelsForSelect"]
-      })
-      return {
-        isOk: checkOllamaStatus ? isOk : true,
-        models,
-        ollamaURL
-      }
-    }
+  // No local daemon to probe: "configured" simply means the user has at least
+  // one Y-API provider with models under /settings/openai.
+  const { data: models, status: ollamaStatus } = useQuery({
+    queryKey: ["getAllModelsForSelect"],
+    queryFn: () => fetchChatModels()
   })
-
-  useEffect(() => {
-    if (ollamaInfo?.ollamaURL) {
-      setOllamaURL(ollamaInfo.ollamaURL)
-    }
-  }, [ollamaInfo])
 
   const { setSelectedModel, selectedModel, chatMode, setChatMode } =
     useMessage()
@@ -161,7 +132,7 @@ export const EmptySidePanel = () => {
           placeholder={t("common:selectAModel")}
           style={{ width: "100%", height: "100%" }}
           className="mt-4 min-w-60 max-w-64"
-          options={ollamaInfo?.models?.map((model) => ({
+          options={models?.map((model) => ({
             label: (
               <span
                 key={model.model}
@@ -351,106 +322,54 @@ export const EmptySidePanel = () => {
     )
   }
 
-  if (!checkOllamaStatus) {
+  if (ollamaStatus === "pending") {
     return (
       <div className="mx-auto sm:max-w-md px-4 mt-10">
         <div className="rounded-lg justify-center items-center flex flex-col border dark:border-gray-700 p-8 bg-white dark:bg-[#262626] shadow-sm">
-          <div className="inline-flex items-center space-x-2">
-            <p className="dark:text-gray-400 text-gray-900">
-              <span>👋</span>
-              {t("welcome")}
-            </p>
-          </div>
-          {ollamaStatus === "pending" && (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          )}
-          {ollamaStatus === "success" && ollamaInfo.isOk && renderSection()}
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         </div>
       </div>
     )
   }
 
+  const hasModels = (models?.length ?? 0) > 0
+
   return (
-    <div className="mx-auto sm:max-w-lg px-4 mt-10">
-      <div className="rounded-lg  justify-center items-center flex flex-col border border-gray-300 dark:border-gray-700 p-8 bg-white dark:bg-[#262626] shadow-sm">
-        {(ollamaStatus === "pending" || isRefetching) && (
-          <div className="inline-flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-            <p className="dark:text-gray-400 text-gray-900">
-              {t("ollamaState.searching")}
+    <div className="mx-auto sm:max-w-md px-4 mt-10">
+      <div className="rounded-lg justify-center items-center flex flex-col border border-gray-300 dark:border-gray-700 p-8 bg-white dark:bg-[#262626] shadow-sm">
+        <div className="inline-flex items-center space-x-2">
+          <p className="dark:text-gray-400 text-gray-900">
+            <span>👋</span>
+            {t("welcome")}
+          </p>
+        </div>
+
+        {hasModels ? (
+          renderSection()
+        ) : (
+          <div className="mt-4 flex flex-col space-y-3 justify-center items-center w-full">
+            <p className="text-sm text-gray-700 dark:text-gray-400 text-center">
+              {t(
+                "yapiSetup.hint",
+                "Add your Y-API API key to start chatting with any page."
+              )}
             </p>
-          </div>
-        )}
-        {!isRefetching && ollamaStatus === "success" && ollamaInfo.isOk && (
-          <div className="inline-flex  items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <p className="dark:text-gray-400 text-gray-900">
-              {t("ollamaState.running")}
-            </p>
-          </div>
-        )}
-
-        {!isRefetching && ollamaStatus === "success" && renderSection()}
-
-        {!isRefetching && ollamaStatus === "success" && !ollamaInfo.isOk && (
-          <div className="mt-4 flex flex-col space-y-2 justify-center items-center w-full">
-            <div className="inline-flex items-center space-x-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <p className="text-xs text-red-500">
-                {t("ollamaState.notRunning")}
-              </p>
-              <button
-                onClick={() => {
-                  saveOllamaURL(ollamaURL)
-                  refetch()
-                }}
-                className="inline-flex items-center text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                <RotateCcw className="h-3 w-3 mr-1" />
-                {t("common:retry")}
-              </button>
-            </div>
-
-            <input
-              className="bg-gray-100 dark:bg-black dark:text-gray-100 text-sm rounded-md px-3 py-1.5 w-full"
-              type="url"
-              value={ollamaURL}
-              onChange={(e) => setOllamaURL(e.target.value)}
-            />
-
-            {ollamaURL && cleanUrl(ollamaURL) !== "http://127.0.0.1:11434" && (
-              <p className="text-xs text-gray-700 dark:text-gray-400 text-center">
-                <Trans
-                  i18nKey="playground:ollamaState.connectionError"
-                  components={{
-                    anchor: (
-                      <a
-                        href="https://github.com/n4ze3m/page-assist/blob/main/docs/connection-issue.md"
-                        target="__blank"
-                        className="text-blue-600 dark:text-blue-400"></a>
-                    )
-                  }}
-                />
-              </p>
-            )}
-
-            <p className="text-xs text-gray-700 dark:text-gray-400 text-center">
-              <Trans
-                i18nKey="playground:ollamaState.noOllamaHint"
-                components={{
-                  anchor: (
-                    <button
-                      onClick={() => {
-                        browser.tabs.create({
-                          url: browser.runtime.getURL(
-                            "/options.html#/settings/ollama"
-                          )
-                        })
-                      }}
-                      className="text-blue-600 dark:text-blue-400 underline"></button>
-                  )
-                }}
-              />
-            </p>
+            <button
+              onClick={() => {
+                browser.tabs.create({
+                  url: browser.runtime.getURL("/options.html#/settings/openai")
+                })
+              }}
+              className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200 bg-black text-white dark:bg-white dark:text-black hover:opacity-90">
+              {t("yapiSetup.button", "Add API key")}
+            </button>
+            <a
+              href={Y_API_SITE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-blue-600 dark:text-blue-400 underline">
+              {t("yapiSetup.getKey", "Get a key at Y-API")}
+            </a>
           </div>
         )}
       </div>

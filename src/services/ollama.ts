@@ -1,7 +1,6 @@
 import { Storage } from "@plasmohq/storage"
 import { cleanUrl } from "../libs/clean-url"
 import { urlRewriteRuntime } from "../libs/runtime"
-import { getChromeAIModel } from "./chrome"
 import {
   getOllamaEnabled,
   setNoOfRetrievedDocs,
@@ -16,7 +15,12 @@ const storage = new Storage()
 
 const DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434"
 const DEFAULT_ASK_FOR_MODEL_SELECTION_EVERY_TIME = true
-const DEFAULT_PAGE_SHARE_URL = "https://pageassist.xyz"
+// Upstream defaults this to pageassist.xyz, which means every "share chat"
+// POST ships the full conversation to a third-party server. Y-API Sidebar has
+// no share backend of its own, so the feature is disabled at the call site
+// (see MoreOptions.tsx) and this only remains as a harmless placeholder for
+// the MCP OAuth redirect helper.
+const DEFAULT_PAGE_SHARE_URL = "https://y-api.bestvirtualgoods.com"
 
 const DEFAULT_RAG_QUESTION_PROMPT =
   "Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.   Chat History: {chat_history} Follow Up Input: {question} Standalone question:"
@@ -246,52 +250,19 @@ const applyProviderNameToModels = async <
   })
 }
 
-export const fetchChatModels = async ({
-  returnEmpty = false
-}: {
-  returnEmpty?: boolean
-}) => {
+/**
+ * Y-API Sidebar only ships the Y-API provider: Ollama, Chrome's built-in
+ * Gemini Nano and every other local model source is intentionally absent, so
+ * the model picker lists exactly what the user added under /settings/openai.
+ */
+export const fetchChatModels = async () => {
   try {
-    const models = await getAllModels({ returnEmpty })
-
-    const chatModels = models
-      ?.filter((model) => {
-        return (
-          !model?.details?.families?.includes("bert") &&
-          !model?.details?.families?.includes("nomic-bert")
-        )
-      })
-      .map((model) => {
-        return {
-          ...model,
-          provider: "ollama"
-        }
-      })
-    const chromeModel = await getChromeAIModel()
-
     const customModels = await ollamaFormatAllCustomModels("chat")
-
-    return await applyProviderNameToModels([
-      ...chatModels,
-      ...chromeModel,
-      ...customModels
-    ])
+    return await applyProviderNameToModels(customModels)
   } catch (e) {
     console.error("error", e)
-    const allModels = await getAllModels({ returnEmpty })
-    const models = allModels.map((model) => {
-      return {
-        ...model,
-        provider: "ollama"
-      }
-    })
-    const chromeModel = await getChromeAIModel()
     const customModels = await ollamaFormatAllCustomModels("chat")
-    return await applyProviderNameToModels([
-      ...models,
-      ...chromeModel,
-      ...customModels
-    ])
+    return await applyProviderNameToModels(customModels)
   }
 }
 

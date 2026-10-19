@@ -1,36 +1,53 @@
-# Privacy Policy
+# Privacy Policy — Y-API Sidebar
 
-## Data Collection
-Page Assist is committed to user privacy and does not collect any user data. All operations and data storage occur locally within your browser.
+Last updated: 2026-10-20
 
-## Browser Permissions
-The extension requires the following permissions to function:
+## What this extension stores
 
-- **Notifications**: To provide system notifications
-- **Website Content Access**: Required for the chat-with-webpage functionality
-- **Unlimited Storage**: Used to store chat history locally in your browser
-- **Active Tab**: To ensure the extension is active on the current tab and get screenshots etc
-- **Scripting**: For the chat-with-webpage functionality
-- **Web Requests**: To modify headers of the local server to avoid CORS issues
+Everything stays in your browser's local IndexedDB. Nothing is uploaded to us.
 
-## Page Share Feature
-When using the Page Share feature:
+- Your Y-API API key and the provider settings you enter.
+- The list of models you enabled.
+- Chat history, prompts and knowledge-base documents you create.
+- Your preferences (theme, language, shortcuts).
 
-- Data sharing only occurs when explicitly connecting to external sources
-- Self-hosting option is available for complete data control
-- Shared chats can be permanently deleted from the server at any time
-- No data is retained after deletion
+Uninstalling the extension removes all of it. Export is available under
+Settings → General.
 
-## Data Storage
-- All chat history and settings are stored locally in your browser
-- No data is transmitted to external servers unless explicitly initiated by the user
-- Users maintain full control over their data
+## What leaves your browser
 
-## Third-Party Services
-Page Assist does not integrate with any third-party analytics or tracking services.
+Only two things, and only when you initiate them:
 
-## Changes to Privacy Policy
-We reserve the right to update this privacy policy as needed. Users will be notified of any significant changes.
+1. **Chat requests.** The page content or message you are asking about, plus
+   your API key, are sent to the endpoint you configured — by default
+   `https://api.y-api.bestvirtualgoods.com/v1`, operated by Y-API. What that
+   endpoint does with the request is governed by Y-API's own terms.
+2. **Web search, if you turn it on.** Search queries go to whichever search
+   provider you selected in settings.
+
+There is no telemetry, no analytics SDK, no crash reporting and no remote
+config. The extension does not read pages you have not asked it to read.
+
+## Permissions and why
+
+| Permission | Why |
+| --- | --- |
+| `activeTab`, `scripting` | Read the page you explicitly ask about, and only then |
+| `storage`, `unlimitedStorage` | Keep chat history and settings locally |
+| `sidePanel`, `action` | The sidebar UI and toolbar button |
+| `contextMenus` | Right-click "ask about selection" |
+| `declarativeNetRequest` | Adjust request headers for the endpoint you configure |
+| `notifications` | Tell you when a long task finishes |
+| `tts` | Read replies aloud, if you enable it |
+| `host_permissions: http/https` | Reach whichever endpoint you configure — you may self-host |
+
+## Removed features
+
+The upstream project's web-share feature, which uploaded conversations to
+`pageassist.xyz`, is not present in this build.
 
 ## Contact
-For privacy-related questions or concerns, please open an issue on our GitHub repository or mail me at me@n4ze3m.com
+
+Open an issue or use the support link at https://y-api.bestvirtualgoods.com/.
+
+This extension is a fork of Page Assist (MIT, © 2023 Muhammed Nazeem).

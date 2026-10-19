@@ -1,7 +1,7 @@
 {
-  "name": "pageassist",
+  "name": "y-api-sidebar",
   "displayName": "Page Assist - A Web UI for Local AI Models",
-  "version": "1.0.9",
+  "version": "1.0.0",
   "description": "Use your locally running AI models to assist you in your web browsing.",
   "author": "n4ze3m",
   "scripts": {
@@ -15,11 +15,6 @@
     "zip": "cross-env TARGET=chrome wxt zip",
     "zip:firefox": "cross-env TARGET=firefox wxt zip -b firefox",
     "compile": "tsc --noEmit",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "page-action:dev": "cd extensions/page-action && bun run dev",
-    "page-action:build": "cd extensions/page-action && bun run build",
     "postinstall": "wxt prepare"
   },
   "dependencies": {

@@ -47,5 +47,10 @@
   "sendWhenEnter": "按 Enter 送出",
   "welcome": "你好！今天我能幫你什麼？",
   "useOCR": "從圖片中擷取文字（OCR）",
-  "fileRetrievalEnabled": "為文件啟用 RAG 檢索"
+  "fileRetrievalEnabled": "為文件啟用 RAG 檢索",
+  "yapiSetup": {
+    "hint": "填入 Y-API 金鑰，即可開始與任意網頁對話。",
+    "button": "填入金鑰",
+    "getKey": "前往 Y-API 取得金鑰"
+  }
 }

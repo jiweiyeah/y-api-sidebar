@@ -2,19 +2,16 @@ import {
   BookIcon,
   BrainCircuitIcon,
   OrbitIcon,
-  ShareIcon,
   BlocksIcon,
   InfoIcon,
   CombineIcon,
-  ChromeIcon,
   CpuIcon,
   BrainIcon,
   MousePointerClickIcon,
   PlugZapIcon,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
-import { Link, useLocation } from "react-router-dom"
-import { OllamaIcon } from "../Icons/Ollama"
+import { useLocation } from "react-router-dom"
 import { LinkComponent } from "./LinkComponent"
 import { MCPIcon } from "../Icons/MCPIcon"
 
@@ -44,21 +41,6 @@ export const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
                     icon={CombineIcon}
                     current={location.pathname}
                   />
-                  <LinkComponent
-                    href="/settings/ollama"
-                    name={t("ollamaSettings.title")}
-                    icon={OllamaIcon}
-                    current={location.pathname}
-                  />
-                  {import.meta.env.BROWSER !== "firefox" && (
-                    <LinkComponent
-                      href="/settings/chrome"
-                      name={t("chromeAiSettings.title")}
-                      icon={ChromeIcon}
-                      current={location.pathname}
-                      beta
-                    />
-                  )}
                   <LinkComponent
                     href="/settings/openai"
                     name={t("openai:settings")}
@@ -117,12 +99,6 @@ export const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
                     href="/settings/prompt"
                     name={t("managePrompts.title")}
                     icon={BookIcon}
-                    current={location.pathname}
-                  />
-                  <LinkComponent
-                    href="/settings/share"
-                    name={t("manageShare.title")}
-                    icon={ShareIcon}
                     current={location.pathname}
                   />
                   <LinkComponent

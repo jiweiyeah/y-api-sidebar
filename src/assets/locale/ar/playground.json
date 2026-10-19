@@ -1,33 +1,38 @@
 {
-    "ollamaState": {
-        "searching": "جارٍ البحث عن Ollama الخاص بك 🦙",
-        "running": "Ollama يعمل 🦙",
-        "notRunning": "تعذر الاتصال بـ Ollama 🦙",
-        "connectionError": "يبدو أنك تواجه خطأ في الاتصال. يرجى الرجوع إلى هذا <anchor>الدليل</anchor> لاستكشاف الأخطاء وإصلاحها."
+  "ollamaState": {
+    "searching": "جارٍ البحث عن Ollama الخاص بك 🦙",
+    "running": "Ollama يعمل 🦙",
+    "notRunning": "تعذر الاتصال بـ Ollama 🦙",
+    "connectionError": "يبدو أنك تواجه خطأ في الاتصال. يرجى الرجوع إلى هذا <anchor>الدليل</anchor> لاستكشاف الأخطاء وإصلاحها."
+  },
+  "formError": {
+    "noModel": "الرجاء اختيار نموذج",
+    "noEmbeddingModel": "الرجاء تعيين نموذج التضمين في صفحة الإعدادات > RAG"
+  },
+  "form": {
+    "textarea": {
+      "placeholder": "اكتب رسالة..."
     },
-    "formError": {
-        "noModel": "الرجاء اختيار نموذج",
-        "noEmbeddingModel": "الرجاء تعيين نموذج التضمين في صفحة الإعدادات > RAG"
-    },
-    "form": {
-        "textarea": {
-            "placeholder": "اكتب رسالة..."
-        },
-        "webSearch": {
-            "on": "تشغيل",
-            "off": "إيقاف"
-        }
-    },
-    "tooltip": {
-        "searchInternet": "البحث في الإنترنت",
-        "speechToText": "تحويل الكلام إلى نص",
-        "uploadImage": "تحميل صورة",
-        "stopStreaming": "إيقاف البث",
-        "knowledge": "المعرفة",
-        "vision": "[تجريبي] محادثة الرؤية",
-        "clearContext": "مسح السياق"
-    },
-    "sendWhenEnter": "إرسال عند الضغط على Enter",
-    "welcome": "مرحباً! كيف يمكنني مساعدتك اليوم؟",
-    "useOCR": "استخراج النص من الصورة (OCR)"
+    "webSearch": {
+      "on": "تشغيل",
+      "off": "إيقاف"
+    }
+  },
+  "tooltip": {
+    "searchInternet": "البحث في الإنترنت",
+    "speechToText": "تحويل الكلام إلى نص",
+    "uploadImage": "تحميل صورة",
+    "stopStreaming": "إيقاف البث",
+    "knowledge": "المعرفة",
+    "vision": "[تجريبي] محادثة الرؤية",
+    "clearContext": "مسح السياق"
+  },
+  "sendWhenEnter": "إرسال عند الضغط على Enter",
+  "welcome": "مرحباً! كيف يمكنني مساعدتك اليوم؟",
+  "useOCR": "استخراج النص من الصورة (OCR)",
+  "yapiSetup": {
+    "hint": "أضف مفتاح Y-API الخاص بك لبدء الدردشة مع أي صفحة.",
+    "button": "إضافة مفتاح",
+    "getKey": "احصل على مفتاح من Y-API"
+  }
 }

@@ -1,26 +1,26 @@
 {
-    "extName": {
-        "message": "പേജ് അസിസ്റ്റ് - ഒള്ളമ മോഡലുകളിക്ക് ഒരു വെബ്യൂഐ"
-    },
-    "extDescription": {
-        "message": "ഇന്റർനെറ്റ് ബ്രൌസ് ചെയ്യുമ്പോൾ സ്ഥലിപ്പായി പ്രവർത്തിക്കുന്ന എയ്‌ മോഡൽ ഉപയോഗിക്കുക."
-    },
-    "openSidePanelToChat": {
-        "message": "ചാറ്റ് ചെയ്യാന്‍ സൈഡ് പാനല്‍ തുറക്കുക"
-    },
-    "contextSummarize": {
-        "message": "സംഗ്രഹിക്കുക"
-    },
-    "contextExplain": {
-        "message": "വിശദീകരിക്കുക"
-    },
-    "contextRephrase": {
-        "message": "പുനഃരൂപീകരിക്കുക"
-    },
-    "contextTranslate": {
-        "message": "വിവർത്തനം ചെയ്യുക"
-    },
-    "contextCustom": {
-        "message": "ഇഷ്ടാനുസൃതം"
-    }
+  "extName": {
+    "message": "Y-API Sidebar - ഏത് പേജിനും AI സഹായി"
+  },
+  "extDescription": {
+    "message": "ഏത് പേജിനെക്കുറിച്ചും AI-യോട് ചോദിക്കുക. നിങ്ങളുടെ Y-API കീ നൽകിയാൽ മതി, ലോക്കൽ സെറ്റപ്പ് വേണ്ട."
+  },
+  "openSidePanelToChat": {
+    "message": "ചാറ്റ് ചെയ്യാന്‍ സൈഡ് പാനല്‍ തുറക്കുക"
+  },
+  "contextSummarize": {
+    "message": "സംഗ്രഹിക്കുക"
+  },
+  "contextExplain": {
+    "message": "വിശദീകരിക്കുക"
+  },
+  "contextRephrase": {
+    "message": "പുനഃരൂപീകരിക്കുക"
+  },
+  "contextTranslate": {
+    "message": "വിവർത്തനം ചെയ്യുക"
+  },
+  "contextCustom": {
+    "message": "ഇഷ്ടാനുസൃതം"
+  }
 }

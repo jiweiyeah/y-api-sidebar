@@ -197,8 +197,8 @@ export const pageAssistModel = async ({
           apiKey: providerInfo.apiKey || "temp",
           baseURL: providerInfo.baseUrl || "",
           defaultHeaders: {
-            "HTTP-Referer": "https://pageassist.xyz/",
-            "X-Title": "Page Assist",
+            "HTTP-Referer": "https://y-api.bestvirtualgoods.com/",
+            "X-Title": "Y-API Sidebar",
             ...getCustomHeaders({
               headers: providerInfo?.headers || []
             })

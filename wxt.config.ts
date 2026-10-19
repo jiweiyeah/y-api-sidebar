@@ -51,20 +51,21 @@ export default defineConfig({
   outDir: "build",
 
   manifest: {
-    version: "1.5.88",
+    version: "1.0.0",
     name:
       process.env.TARGET === "firefox"
-        ? "Page Assist - A Web UI for Local AI Models"
+        ? "Y-API Sidebar - AI assistant for any page"
         : "__MSG_extName__",
     description: "__MSG_extDescription__",
     default_locale: "en",
     action: {},
-    author: "n4ze3m",
+    author: "Y-API",
+    homepage_url: "https://y-api.bestvirtualgoods.com/",
     browser_specific_settings:
       process.env.TARGET === "firefox"
         ? {
           gecko: {
-            id: "page-assist@nazeem"
+            id: "y-api-sidebar@bestvirtualgoods"
           }
         }
         : undefined,

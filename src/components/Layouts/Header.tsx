@@ -5,7 +5,7 @@ import {
   ChevronRight,
   CogIcon,
   ComputerIcon,
-  GithubIcon,
+  GlobeIcon,
   PanelLeftIcon,
   ZapIcon,
   SaveIcon
@@ -24,6 +24,7 @@ import { ProviderIcons } from "../Common/ProviderIcon"
 import { NewChat } from "./NewChat"
 import { MoreOptions } from "./MoreOptions"
 import { useUiDirection } from "~/hooks/useUiDirection"
+import { Y_API_SITE_URL } from "@/utils/oai-api-providers"
 type Props = {
   setSidebarOpen: (open: boolean) => void
   setOpenModelSettings: (open: boolean) => void
@@ -61,7 +62,7 @@ export const Header: React.FC<Props> = ({
     refetch
   } = useQuery({
     queryKey: ["fetchModel"],
-    queryFn: () => fetchChatModels({ returnEmpty: true }),
+    queryFn: () => fetchChatModels(),
     refetchIntervalInBackground: false,
     staleTime: 1000 * 60 * 1
   })
@@ -242,12 +243,12 @@ export const Header: React.FC<Props> = ({
                 </button>
               </Tooltip>
             )}
-            <Tooltip title={t("githubRepository")}>
+            <Tooltip title="Y-API">
               <a
-                href="https://github.com/n4ze3m/page-assist"
+                href={Y_API_SITE_URL}
                 target="_blank"
                 className="!text-gray-500 hidden lg:block dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                <GithubIcon className="w-6 h-6" />
+                <GlobeIcon className="w-6 h-6" />
               </a>
             </Tooltip>
             <Tooltip title={t("settings")}>

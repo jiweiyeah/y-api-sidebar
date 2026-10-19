@@ -1,29 +1,29 @@
 {
-    "extName": {
-        "message": "دستیار صفحه - یک رابط کاربری وب برای مدل های هوش مصنوعی لوکال"
-    },
-    "extDescription": {
-        "message": "از مدل های هوش مصنوعی لوکال خود برای دریافت کمک در هنگام مرور وب استفاده کنید."
-    },
-    "openSidePanelToChat": {
-        "message": "باز کردن پنل کناری برای گفتگو"
-    },
-    "openOptionToChat": {
-        "message": "باز کردن رابط کاربری وب برای گفتگو"
-    },
-    "contextSummarize": {
-        "message": "خلاصه کردن"
-    },
-    "contextExplain": {
-        "message": "توضیح دادن"
-    },
-    "contextRephrase": {
-        "message": "بازنویسی"
-    },
-    "contextTranslate": {
-        "message": "ترجمه کردن"
-    },
-    "contextCustom": {
-        "message": "سفارشی"
-    }
+  "extName": {
+    "message": "Y-API Sidebar - دستیار هوش مصنوعی برای هر صفحه"
+  },
+  "extDescription": {
+    "message": "درباره هر صفحه‌ای از هوش مصنوعی بپرسید. فقط کلید Y-API خود را وارد کنید، بدون نیاز به نصب محلی."
+  },
+  "openSidePanelToChat": {
+    "message": "باز کردن پنل کناری برای گفتگو"
+  },
+  "openOptionToChat": {
+    "message": "باز کردن رابط کاربری وب برای گفتگو"
+  },
+  "contextSummarize": {
+    "message": "خلاصه کردن"
+  },
+  "contextExplain": {
+    "message": "توضیح دادن"
+  },
+  "contextRephrase": {
+    "message": "بازنویسی"
+  },
+  "contextTranslate": {
+    "message": "ترجمه کردن"
+  },
+  "contextCustom": {
+    "message": "سفارشی"
+  }
 }

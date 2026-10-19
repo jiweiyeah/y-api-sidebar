@@ -217,15 +217,18 @@ export const OpenAIApp = () => {
     return false
   }
 
+  // Sync the provider dropdown from a hand-typed base URL. This has to run in
+  // an effect: calling setProvider during render re-enters this component and
+  // React aborts with "Too many re-renders" as soon as the typed URL matches
+  // a preset.
   const baseUrl = useWatch("baseUrl", form)
-  if (!editingConfig && baseUrl && provider === "custom") {
+  useEffect(() => {
+    if (editingConfig || !baseUrl || provider !== "custom") return
     const matchedProvider = OAI_API_PROVIDERS.find(
       (p) => p.baseUrl.toLowerCase() === baseUrl.toLowerCase()
     )
-    if (matchedProvider) {
-      setProvider(matchedProvider.value)
-    }
-  }
+    if (matchedProvider) setProvider(matchedProvider.value)
+  }, [baseUrl, editingConfig, provider])
 
   const apiKeyUrl = OAI_API_PROVIDERS.find(
     (p) => p.value === provider
@@ -257,6 +260,15 @@ export const OpenAIApp = () => {
                   }
                   form.resetFields()
                   setEditingConfig(null)
+                  // The only shipped provider is Y-API, and it is already the
+                  // default selection, so onSelect never fires to fill the
+                  // form. Prefill it here instead of making the user retype it.
+                  const preset = OAI_API_PROVIDERS[0]
+                  form.setFieldsValue({
+                    baseUrl: preset?.baseUrl,
+                    name: preset?.label
+                  })
+                  setProvider(preset?.value ?? "custom")
                   setOpen(true)
                 }}
                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-black px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-white dark:text-gray-800 dark:hover:bg-gray-100 dark:focus:ring-gray-500 dark:focus:ring-offset-gray-100 disabled:opacity-50 w-full sm:w-auto">

@@ -1,32 +1,37 @@
 {
-    "ollamaState": {
-        "searching": "در حال جستجوی Ollama شما 🦙",
-        "running": "Ollama در حال اجرا است 🦙",
-        "notRunning": "امکان اتصال به Ollama وجود ندارد 🦙",
-        "connectionError": "به نظر می رسد که خطای اتصال دارید. لطفا برای عیب یابی به این <anchor>مستندات</anchor> مراجعه کنید."
+  "ollamaState": {
+    "searching": "در حال جستجوی Ollama شما 🦙",
+    "running": "Ollama در حال اجرا است 🦙",
+    "notRunning": "امکان اتصال به Ollama وجود ندارد 🦙",
+    "connectionError": "به نظر می رسد که خطای اتصال دارید. لطفا برای عیب یابی به این <anchor>مستندات</anchor> مراجعه کنید."
+  },
+  "formError": {
+    "noModel": "لطفا یک مدل را انتخاب کنید",
+    "noEmbeddingModel": "لطفا یک مدل جاسازی در صفحه تنظیمات > RAG تنظیم کنید"
+  },
+  "form": {
+    "textarea": {
+      "placeholder": "یک پیام تایپ کنید..."
     },
-    "formError": {
-        "noModel": "لطفا یک مدل را انتخاب کنید",
-        "noEmbeddingModel": "لطفا یک مدل جاسازی در صفحه تنظیمات > RAG تنظیم کنید"
-    },
-    "form": {
-        "textarea": {
-            "placeholder": "یک پیام تایپ کنید..."
-        },
-        "webSearch": {
-            "on": "روشن",
-            "off": "خاموش"
-        }
-    },
-    "tooltip": {
-        "searchInternet": "جستجوی اینترنت",
-        "speechToText": "گفتار به متن",
-        "uploadImage": "آپلود تصویر",
-        "stopStreaming": "توقف Streaming",
-        "knowledge": "دانش",
-        "clearContext": "پاک کردن متن"
-    },
-    "sendWhenEnter": "با فشار دادن Enter ارسال شود",
-    "welcome": "سلام! امروز چطور می‌توانم به شما کمک کنم؟",
-    "useOCR": "استخراج متن از تصویر (OCR)"
+    "webSearch": {
+      "on": "روشن",
+      "off": "خاموش"
+    }
+  },
+  "tooltip": {
+    "searchInternet": "جستجوی اینترنت",
+    "speechToText": "گفتار به متن",
+    "uploadImage": "آپلود تصویر",
+    "stopStreaming": "توقف Streaming",
+    "knowledge": "دانش",
+    "clearContext": "پاک کردن متن"
+  },
+  "sendWhenEnter": "با فشار دادن Enter ارسال شود",
+  "welcome": "سلام! امروز چطور می‌توانم به شما کمک کنم؟",
+  "useOCR": "استخراج متن از تصویر (OCR)",
+  "yapiSetup": {
+    "hint": "برای گفتگو درباره هر صفحه، کلید Y-API خود را اضافه کنید.",
+    "button": "افزودن کلید",
+    "getKey": "دریافت کلید از Y-API"
+  }
 }

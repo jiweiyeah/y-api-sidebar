@@ -1,15 +1,12 @@
 import {
   MoreHorizontal,
   FileText,
-  Share2,
   FileJson,
   FileCode,
   ImageIcon
 } from "lucide-react"
 import { Dropdown, MenuProps, message } from "antd"
 import { Message } from "@/types/message"
-import { useState } from "react"
-import { ShareModal } from "../Common/ShareModal"
 import { useTranslation } from "react-i18next"
 import { removeModelSuffix } from "@/db/dexie/models"
 import { copyToClipboard } from "@/utils/clipboard"
@@ -20,7 +17,8 @@ import { convertMathDelimiters } from "@/utils/math-delimiter"
 interface MoreOptionsProps {
   messages: Message[]
   historyId: string
-  shareModeEnabled: boolean
+  /** Kept in the signature so upstream call sites stay untouched. */
+  shareModeEnabled?: boolean
 }
 const formatAsText = (messages: Message[]) => {
   return messages
@@ -83,13 +81,8 @@ const generateChatImage = async (messages: Message[]) => {
   return canvas.toDataURL("image/png")
 }
 
-export const MoreOptions = ({
-  shareModeEnabled = false,
-  historyId,
-  messages
-}: MoreOptionsProps) => {
+export const MoreOptions = ({ messages }: MoreOptionsProps) => {
   const { t } = useTranslation(["option", "settings"])
-  const [onShareOpen, setOnShareOpen] = useState(false)
   const baseItems: MenuProps["items"] = [
     {
       type: "group",
@@ -188,22 +181,10 @@ export const MoreOptions = ({
     }
   ]
 
-  const shareItem = {
-    type: "divider"
-  } as const
-
-  const shareOption = {
-    key: "share",
-    label: t("more.share"),
-    icon: <Share2 className="w-4 h-4" />,
-    onClick: () => {
-      setOnShareOpen(true)
-    }
-  }
-
-  const items = shareModeEnabled
-    ? [...baseItems, shareItem, shareOption]
-    : baseItems
+  // Web share uploads the whole conversation to whatever server the user
+  // configured, defaulting to pageassist.xyz. Y-API Sidebar ships without a
+  // share backend, so the option is never offered — local exports above stay.
+  const items = baseItems
 
   return (
     <>
@@ -217,12 +198,6 @@ export const MoreOptions = ({
           <MoreHorizontal className="w-6 h-6" />
         </button>
       </Dropdown>
-      <ShareModal
-        open={onShareOpen}
-        historyId={historyId}
-        messages={messages}
-        setOpen={setOnShareOpen}
-      />
     </>
   )
 }
