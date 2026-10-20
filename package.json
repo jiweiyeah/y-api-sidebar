@@ -3,7 +3,7 @@
   "displayName": "Page Assist - A Web UI for Local AI Models",
   "version": "1.0.0",
   "description": "Use your locally running AI models to assist you in your web browsing.",
-  "author": "n4ze3m",
+  "author": "Y-API",
   "scripts": {
     "dev": "cross-env TARGET=chrome wxt",
     "dev:firefox": "cross-env TARGET=firefox wxt -b firefox",
@@ -100,5 +100,14 @@
   },
   "resolutions": {
     "@langchain/core": "^1.1.31"
-  }
+  },
+  "homepage": "https://github.com/jiweiyeah/y-api-sidebar#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiweiyeah/y-api-sidebar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jiweiyeah/y-api-sidebar/issues"
+  },
+  "license": "MIT"
 }
