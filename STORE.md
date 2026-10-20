@@ -8,7 +8,7 @@
 | 上传包 | `bun run zip` → `build/y-api-sidebar-1.0.0-chrome.zip`（约 7.2 MB） |
 | 商店图标 | [`docs/images/icon-128.png`](docs/images/icon-128.png)（128×128） |
 | 截图 | `docs/images/store-1-chat.png`、`store-2-empty.png`、`store-3-settings.png`（均 1280×800） |
-| 隐私政策 URL | `https://y-api.bestvirtualgoods.com/y-api-sidebar/privacy`（需先托管，见文末） |
+| 隐私政策 URL | `https://jiweiyeah.github.io/y-api-sidebar/privacy.html`（需先托管，见文末） |
 
 ---
 
@@ -34,7 +34,7 @@ Ask AI about any page from your browser sidebar. Bring your own Y-API key — no
 
 **支持链接**：`https://y-api.bestvirtualgoods.com/app/support`
 
-**隐私政策**：`https://y-api.bestvirtualgoods.com/y-api-sidebar/privacy`
+**隐私政策**：`https://jiweiyeah.github.io/y-api-sidebar/privacy.html`
 
 ---
 
@@ -69,7 +69,7 @@ host yourself.
 PRIVACY
 Your API key, chat history and settings are stored locally in IndexedDB. The
 only outbound traffic is the chat request you send to the endpoint you
-configure. Full policy: https://y-api.bestvirtualgoods.com/y-api-sidebar/privacy
+configure. Full policy: https://jiweiyeah.github.io/y-api-sidebar/privacy.html
 
 This extension is built on the open-source Page Assist project (MIT).
 Source code: https://github.com/jiweiyeah/y-api-sidebar
@@ -166,23 +166,30 @@ shared with third parties.
 
 ## 7. 隐私政策托管
 
-`PRIVACY.md` 需要有一个公开 URL。三种做法，任选：
+**已托管，直接填这个 URL：**
 
-**A. 放进 Y-API 站点的 Worker**（推荐，同域、可缓存、随站点部署）
+```
+https://jiweiyeah.github.io/y-api-sidebar/privacy.html
+```
 
-在 Y-API 仓库 `public/` 下建 `y-api-sidebar/privacy.md`，沿用现有的 markdown
-协商机制（见 `docs/architecture.md` §7.2），部署后即可通过
-`https://y-api.bestvirtualgoods.com/y-api-sidebar/privacy` 访问。
+托管方式：GitHub Pages，源为本仓库 `main` 分支的 `/docs` 目录
+（`docs/_config.yml` 指定主题，`docs/privacy.md` 是 `PRIVACY.md` 的副本）。
 
-**B. GitHub Pages**
+更新政策时**两个文件都要改**，否则线上与实际不一致：
 
-仓库 Settings → Pages → Source 选 `main` / `/docs`，把 `PRIVACY.md` 复制成
-`docs/privacy.md`。URL 形如 `https://jiweiyeah.github.io/y-api-sidebar/privacy.html`。
+```bash
+# 改完 PRIVACY.md 后
+cp PRIVACY.md docs/privacy.md
+git add PRIVACY.md docs/privacy.md && git commit -m "docs: 更新隐私政策" && git push
+```
 
-**C. GitHub 文件直链**
+Pages 会在推送后 1–2 分钟自动重建。
 
-直接填 `https://github.com/jiweiyeah/y-api-sidebar/blob/main/PRIVACY.md`。审核通常
-接受，但渲染依赖 GitHub，不如前两种稳。
+### 如果以后想换到自有域名
+
+`PRIVACY.md` 与 `STORE.md` 里的 URL 共出现 4 处，替换时全局搜
+`jiweiyeah.github.io/y-api-sidebar/privacy.html` 即可。换域名后记得同步
+`docs/_config.yml` 或改用 CNAME。
 
 ---
 

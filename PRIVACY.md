@@ -4,7 +4,7 @@
 **Applies to: Y-API Sidebar, Chrome extension version 1.0.0 and later**
 
 This policy is published at
-`https://y-api.bestvirtualgoods.com/y-api-sidebar/privacy` and is the version
+`https://jiweiyeah.github.io/y-api-sidebar/privacy.html` and is the version
 submitted to the Chrome Web Store.
 
 ---
