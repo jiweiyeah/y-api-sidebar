@@ -44,8 +44,7 @@ export const copyToClipboard = async ({
         return
       }
     } catch (e) {
-      console.log(e)
-      console.log("Using fallback")
+      console.warn("Clipboard API unavailable, using fallback", e)
     }
   }
 

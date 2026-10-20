@@ -144,5 +144,7 @@
   "downloading": "Descargando",
   "cancelPullingModel": {
     "confirm": "¿Está seguro de que desea cancelar la descarga? Esto detendrá el proceso de descarga. Según la documentación de Ollama, puede reiniciar desde donde lo dejó."
-  }
+  },
+  "more": "More",
+  "goBack": "Go back"
 }

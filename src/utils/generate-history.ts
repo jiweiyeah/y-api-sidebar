@@ -1,12 +1,10 @@
 import { isCustomModel } from "@/db/dexie/models"
-import { isTextMessageKind } from "@/libs/mcp/utils"
 import { parseReasoning, removeReasoning } from "@/libs/reasoning"
 import { formatContextTimestamp } from "@/utils/format-timestamp"
 import { Storage } from "@plasmohq/storage"
 import {
   HumanMessage,
   AIMessage,
-  ToolMessage,
   type MessageContent
 } from "@langchain/core/messages"
 
@@ -26,24 +24,11 @@ const isDeepSeekModel = (model: string): boolean =>
 
 export const generateHistory = async (
   messages: {
-    role: "user" | "assistant" | "system" | "tool"
+    role: "user" | "assistant" | "system"
     content: string
     image?: string
     images?: string[]
     createdAt?: number
-    messageKind?: "text" | "assistant_tool_calls" | "tool_result"
-    toolCalls?: {
-      id: string
-      name: string
-      args?: unknown
-      type?: "tool_call"
-      serverName?: string
-      displayName?: string
-    }[]
-    toolCallId?: string
-    toolName?: string
-    toolServerName?: string
-    toolError?: boolean
   }[],
   model: string
 ) => {
@@ -58,9 +43,7 @@ export const generateHistory = async (
       showMessageTimestamp &&
       message.createdAt &&
       message.content?.trim()?.length > 0 &&
-      (message.role === "user" ||
-        (message.role === "assistant" &&
-          message.messageKind !== "assistant_tool_calls"))
+      (message.role === "user" || message.role === "assistant")
     ) {
       const timestamp = formatContextTimestamp(message.createdAt)
       if (timestamp) {
@@ -80,10 +63,12 @@ export const generateHistory = async (
             }
           ]
 
-      // Use images array if available, otherwise fall back to single image
-      const imagesToUse = message.images && message.images.length > 0
-        ? message.images
-        : (message.image ? [message.image] : [])
+      const imagesToUse =
+        message.images && message.images.length > 0
+          ? message.images
+          : message.image
+            ? [message.image]
+            : []
 
       if (imagesToUse.length > 0) {
         content = [
@@ -93,7 +78,6 @@ export const generateHistory = async (
           }
         ]
 
-        // Add all images to content
         imagesToUse.forEach((img) => {
           if (img && img.length > 0) {
             //@ts-ignore
@@ -114,9 +98,9 @@ export const generateHistory = async (
         })
       )
     } else if (message.role === "assistant") {
-      // DeepSeek V4 thinking mode 400s if reasoning_content is missing on a prior
-      // assistant turn. Only enrich the AIMessage for DeepSeek so other providers
-      // keep their previous behavior.
+      // DeepSeek thinking modes 400 if reasoning_content is missing on a prior
+      // assistant turn. Only enrich the AIMessage for DeepSeek so other
+      // providers keep their previous behavior.
       const reasoningContent = isDeepSeek
         ? extractReasoningContent(message.content)
         : ""
@@ -125,57 +109,17 @@ export const generateHistory = async (
         additionalKwargs.reasoning_content = reasoningContent
       }
 
-      if (message.messageKind === "assistant_tool_calls") {
-        const toolCallExtraContent: Record<string, unknown> = {}
-        for (const toolCall of message.toolCalls || []) {
-          const extra = (toolCall as any).extraContent
-          if (extra != null && toolCall.id) {
-            toolCallExtraContent[toolCall.id] = extra
-          }
-        }
-        history.push(
-          new AIMessage({
-            content: isDeepSeek
-              ? removeReasoning(message.content || "")
-              : message.content || "",
-            additional_kwargs: {
-              ...additionalKwargs,
-              ...(Object.keys(toolCallExtraContent).length
-                ? { tool_call_extra_content: toolCallExtraContent }
-                : {})
-            },
-            tool_calls: (message.toolCalls || []).map((toolCall) => ({
-              id: toolCall.id,
-              name: toolCall.name,
-              args: toolCall.args || {},
-              type: "tool_call"
-            }))
-          })
-        )
-        continue
-      }
-
       history.push(
         new AIMessage({
-          content: isTextMessageKind(message.messageKind)
-            ? isCustom
-              ? removeReasoning(message.content)
-              : [
-                  {
-                    type: "text",
-                    text: removeReasoning(message.content)
-                  }
-                ]
-            : message.content,
+          content: isCustom
+            ? removeReasoning(message.content)
+            : [
+                {
+                  type: "text",
+                  text: removeReasoning(message.content)
+                }
+              ],
           additional_kwargs: additionalKwargs
-        })
-      )
-    } else if (message.role === "tool") {
-      history.push(
-        new ToolMessage({
-          content: message.content,
-          tool_call_id: message.toolCallId || "",
-          status: message.toolError ? "error" : "success"
         })
       )
     }

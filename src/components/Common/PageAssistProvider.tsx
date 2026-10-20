@@ -11,8 +11,6 @@ export const PageAssistProvider = ({
   const [controller, setController] = React.useState<AbortController | null>(
     null
   )
-  const [embeddingController, setEmbeddingController] =
-    React.useState<AbortController | null>(null)
 
   return (
     <PageAssistContext.Provider
@@ -21,10 +19,7 @@ export const PageAssistProvider = ({
         setMessages,
 
         controller,
-        setController,
-
-        embeddingController,
-        setEmbeddingController
+        setController
       }}>
       {children}
     </PageAssistContext.Provider>

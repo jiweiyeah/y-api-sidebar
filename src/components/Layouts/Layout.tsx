@@ -15,9 +15,7 @@ import {
   useSidebarShortcuts
 } from "@/hooks/keyboard/useKeyboardShortcuts"
 import { useQueryClient } from "@tanstack/react-query"
-import { useStoreChatModelSettings } from "@/store/model"
 import { PageAssistDatabase } from "@/db/dexie/chat"
-import { useMigration } from "../../hooks/useMigration"
 import { useStorage } from "@plasmohq/storage/hook"
 
 export default function OptionLayout({
@@ -28,7 +26,6 @@ export default function OptionLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { t } = useTranslation(["option", "common", "settings"])
   const [openModelSettings, setOpenModelSettings] = useState(false)
-  useMigration()
   const [sidebarPosition] = useStorage("sidebarPosition", "left")
   const {
     setMessages,
@@ -38,14 +35,11 @@ export default function OptionLayout({
     clearChat,
     setSelectedModel,
     temporaryChat,
-    setSelectedSystemPrompt,
-    setContextFiles,
     useOCR,
     selectedModel,
     saveTemporaryChat
   } = useMessageOption()
   const queryClient = useQueryClient()
-  const { setSystemPrompt } = useStoreChatModelSettings()
 
   // Create toggle function for sidebar
   const toggleSidebar = () => {
@@ -120,13 +114,10 @@ export default function OptionLayout({
             setHistory={setHistory}
             setHistoryId={setHistoryId}
             setSelectedModel={setSelectedModel}
-            setSelectedSystemPrompt={setSelectedSystemPrompt}
             clearChat={clearChat}
             historyId={historyId}
-            setSystemPrompt={setSystemPrompt}
             temporaryChat={temporaryChat}
             history={history}
-            setContext={setContextFiles}
             selectedModel={selectedModel}
           />
         </Drawer>

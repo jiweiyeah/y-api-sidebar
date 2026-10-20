@@ -1,12 +1,12 @@
 import { createModel } from "@/db/dexie/models"
-import { getAllOpenAIConfig, getOpenAIConfigById } from "@/db/dexie/openai"
+import { getYApiProvider } from "@/db/dexie/openai"
 import { getAllOpenAIModels } from "@/libs/openai"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Input, Modal, Form, Select, Radio, AutoComplete, Spin } from "antd"
+import { Modal, Form, Radio, AutoComplete, Spin } from "antd"
 import { Loader2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useMemo } from "react"
-import { ProviderIcons } from "@/components/Common/ProviderIcon"
+import { Y_API_PROVIDER_ID } from "@/utils/oai-api-providers"
 
 type Props = {
   open: boolean
@@ -17,35 +17,25 @@ export const AddCustomModelModal: React.FC<Props> = ({ open, setOpen }) => {
   const { t } = useTranslation(["openai"])
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
-  const selectedProviderId = Form.useWatch("provider_id", form)
   const searchValue = Form.useWatch("model_id", form)
   const selectedModelType = Form.useWatch("model_type", form)
-
-  const { data, isPending } = useQuery({
-    queryKey: ["fetchProviders"],
-    queryFn: async () => {
-      const providers = await getAllOpenAIConfig()
-      return providers.filter((provider) => provider.provider !== "lmstudio")
-    }
-  })
 
   const {
     data: providerModels,
     isFetching: isFetchingModels,
     status: modelsStatus
   } = useQuery({
-    queryKey: ["providerModels", selectedProviderId, selectedModelType],
+    queryKey: ["providerModels", Y_API_PROVIDER_ID, selectedModelType],
     queryFn: async () => {
-      const config = await getOpenAIConfigById(selectedProviderId as string)
+      const config = await getYApiProvider()
       const models = await getAllOpenAIModels({
         baseUrl: config.baseUrl,
         apiKey: config.apiKey,
-        customHeaders: config.headers,
         modelType: (selectedModelType as "chat" | "embedding") ?? "chat"
       })
       return models
     },
-    enabled: !!selectedProviderId
+    enabled: open
   })
 
   const autoCompleteOptions = useMemo(() => {
@@ -63,12 +53,11 @@ export const AddCustomModelModal: React.FC<Props> = ({ open, setOpen }) => {
   const onFinish = async (values: {
     model_id: string
     model_type: "chat" | "embedding"
-    provider_id: string
   }) => {
     await createModel(
       values.model_id,
       values.model_id,
-      values.provider_id,
+      Y_API_PROVIDER_ID,
       values.model_type
     )
 
@@ -83,6 +72,9 @@ export const AddCustomModelModal: React.FC<Props> = ({ open, setOpen }) => {
       })
       queryClient.invalidateQueries({
         queryKey: ["fetchModel"]
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["getAllModelsForSelect"]
       })
       form.resetFields()
       setOpen(false)
@@ -112,7 +104,6 @@ export const AddCustomModelModal: React.FC<Props> = ({ open, setOpen }) => {
             options={autoCompleteOptions}
             placeholder={t("manageModels.modal.form.name.placeholder")}
             size="large"
-            disabled={!selectedProviderId}
             filterOption={(inputValue, option) =>
               (option?.label as string)
                 ?.toLowerCase()
@@ -122,62 +113,15 @@ export const AddCustomModelModal: React.FC<Props> = ({ open, setOpen }) => {
                 .includes(inputValue.toLowerCase())
             }
             notFoundContent={
-              selectedProviderId ? (
-                modelsStatus === "pending" || isFetchingModels ? (
-                  <div className="flex items-center justify-center py-2">
-                    <Spin size="small" />
-                  </div>
-                ) : (
-                  t("noModelFound")
-                )
+              modelsStatus === "pending" || isFetchingModels ? (
+                <div className="flex items-center justify-center py-2">
+                  <Spin size="small" />
+                </div>
               ) : (
-                t("manageModels.modal.form.provider.placeholder")
+                t("noModelFound")
               )
             }
           />
-        </Form.Item>
-
-        <Form.Item
-          name="provider_id"
-          label={t("manageModels.modal.form.provider.label")}
-          rules={[
-            {
-              required: true,
-              message: t("manageModels.modal.form.provider.required")
-            }
-          ]}>
-          <Select
-            placeholder={t("manageModels.modal.form.provider.placeholder")}
-            size="large"
-            loading={isPending}
-            showSearch
-            filterOption={(input, option) => {
-              //@ts-ignore
-              return (
-                option?.label?.props["data-title"]
-                  ?.toLowerCase()
-                  ?.indexOf(input.toLowerCase()) >= 0
-              )
-            }}
-            options={data?.map((e: any) => ({
-              value: e.id,
-              label: (
-                <span
-                  key={e.id}
-                  data-title={e.name}
-                  className="flex flex-row gap-3 items-center ">
-                  <ProviderIcons provider={e?.provider} className="size-4" />
-                  <span className="line-clamp-2">{e.name}</span>
-                </span>
-              )
-            }))}
-          />
-          {/* {data?.map((provider: any) => (
-              <Select.Option key={provider.id} value={provider.id}>
-                {provider.name}
-              </Select.Option>
-            ))} */}
-          {/* </Select> */}
         </Form.Item>
 
         <Form.Item

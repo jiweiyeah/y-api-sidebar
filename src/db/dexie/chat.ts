@@ -1,15 +1,8 @@
 import {
   ChatHistory,
   HistoryInfo,
-  LastUsedModelType,
   Message,
   MessageHistory,
-  Prompt,
-  Prompts,
-  SessionFiles,
-  UploadedFile,
-  UserSettings,
-  Webshare,
   ProjectFolder,
   ProjectFolders
 } from "./types"
@@ -49,15 +42,6 @@ function fastForward(
 }
 
 export class PageAssistDatabase {
-  async getSessionFiles(sessionId: string): Promise<UploadedFile[]> {
-    const sessionFiles = await db.sessionFiles.get(sessionId)
-    return sessionFiles?.files || []
-  }
-
-  async getAllSessionFiles(): Promise<SessionFiles[]> {
-    return await db.sessionFiles.toArray()
-  }
-
   async getProjectFolders(): Promise<ProjectFolders> {
     return await db.projectFolders.orderBy("createdAt").toArray()
   }
@@ -86,68 +70,6 @@ export class PageAssistDatabase {
 
   async assignHistoryToFolder(history_id: string, folder_id?: string) {
     await db.chatHistories.update(history_id, { folder_id })
-  }
-
-  async getSessionFilesInfo(sessionId: string): Promise<SessionFiles | null> {
-    const sessionFiles = await db.sessionFiles.get(sessionId)
-    return sessionFiles || null
-  }
-
-  async addFileToSession(sessionId: string, file: UploadedFile) {
-    const sessionFiles = await this.getSessionFilesInfo(sessionId)
-    const updatedFiles = sessionFiles ? [...sessionFiles.files, file] : [file]
-    const sessionData: SessionFiles = {
-      sessionId,
-      files: updatedFiles,
-      retrievalEnabled: sessionFiles?.retrievalEnabled || false,
-      createdAt: sessionFiles?.createdAt || Date.now()
-    }
-    await db.sessionFiles.put(sessionData)
-  }
-
-  async removeFileFromSession(sessionId: string, fileId: string) {
-    const sessionFiles = await this.getSessionFilesInfo(sessionId)
-    if (sessionFiles) {
-      const updatedFiles = sessionFiles.files.filter((f) => f.id !== fileId)
-      const sessionData: SessionFiles = {
-        ...sessionFiles,
-        files: updatedFiles
-      }
-      await db.sessionFiles.put(sessionData)
-    }
-  }
-
-  async updateFileInSession(
-    sessionId: string,
-    fileId: string,
-    updates: Partial<UploadedFile>
-  ) {
-    const sessionFiles = await this.getSessionFilesInfo(sessionId)
-    if (sessionFiles) {
-      const updatedFiles = sessionFiles.files.map((f) =>
-        f.id === fileId ? { ...f, ...updates } : f
-      )
-      const sessionData: SessionFiles = {
-        ...sessionFiles,
-        files: updatedFiles
-      }
-      await db.sessionFiles.put(sessionData)
-    }
-  }
-
-  async setRetrievalEnabled(sessionId: string, enabled: boolean) {
-    const sessionFiles = await this.getSessionFilesInfo(sessionId)
-    const sessionData: SessionFiles = {
-      sessionId,
-      files: sessionFiles?.files || [],
-      retrievalEnabled: enabled,
-      createdAt: sessionFiles?.createdAt || Date.now()
-    }
-    await db.sessionFiles.put(sessionData)
-  }
-
-  async clearSessionFiles(sessionId: string) {
-    await db.sessionFiles.delete(sessionId)
   }
 
   async getChatHistory(id: string): Promise<MessageHistory> {
@@ -241,13 +163,6 @@ export class PageAssistDatabase {
     await db.chatHistories.update(history_id, { model_id })
   }
 
-  async updateLastUsedPrompt(
-    history_id: string,
-    usedPrompt: LastUsedModelType
-  ) {
-    await db.chatHistories.update(history_id, { last_used_prompt: usedPrompt })
-  }
-
   async clear() {
     await db.delete()
     await db.open()
@@ -275,6 +190,7 @@ export class PageAssistDatabase {
   async deleteMessage(history_id: string) {
     await db.messages.where("history_id").equals(history_id).delete()
   }
+
   async getChatHistoriesPaginated(
     page: number = 1,
     searchQuery?: string
@@ -286,10 +202,8 @@ export class PageAssistDatabase {
     const offset = (page - 1) * PAGE_SIZE
 
     if (searchQuery) {
-      console.log("Searching chat histories with query:", searchQuery)
       const allResults = await this.fullTextSearchChatHistories(searchQuery)
       const paginatedResults = allResults.slice(offset, offset + PAGE_SIZE)
-      console.log("Paginated search results:", paginatedResults)
       return {
         histories: paginatedResults,
         hasMore: offset + PAGE_SIZE < allResults.length,
@@ -329,6 +243,7 @@ export class PageAssistDatabase {
       }
     }
   }
+
   async getChatHistoriesPaginatedOptimized(
     lastEntry?: any,
     searchQuery?: string
@@ -371,63 +286,6 @@ export class PageAssistDatabase {
     }
   }
 
-  // Prompts Methods
-  async getAllPrompts(): Promise<Prompts> {
-    return await db.prompts.orderBy("createdAt").reverse().toArray()
-  }
-
-  async addPrompt(prompt: Prompt) {
-    await db.prompts.add(prompt)
-  }
-
-  async deletePrompt(id: string) {
-    await db.prompts.delete(id)
-  }
-
-  async updatePrompt(
-    id: string,
-    title: string,
-    content: string,
-    is_system: boolean
-  ) {
-    await db.prompts.update(id, { title, content, is_system })
-  }
-
-  async getPromptById(id: string): Promise<Prompt | undefined> {
-    return await db.prompts.get(id)
-  }
-
-  // Webshare Methods
-  async getWebshare(id: string) {
-    return await db.webshares.get(id)
-  }
-
-  async getAllWebshares(): Promise<Webshare[]> {
-    return await db.webshares.orderBy("createdAt").reverse().toArray()
-  }
-
-  async addWebshare(webshare: Webshare) {
-    await db.webshares.add(webshare)
-  }
-
-  async deleteWebshare(id: string) {
-    await db.webshares.delete(id)
-  }
-
-  // User Settings Methods
-  async getUserID(): Promise<string> {
-    const userSettings = await db.userSettings.get("main")
-    return userSettings?.user_id || ""
-  }
-
-  async setUserID(id: string) {
-    await db.userSettings.put({ id: "main", user_id: id })
-  }
-
-  async getAllUserSettings(): Promise<UserSettings[]> {
-    return await db.userSettings.toArray()
-  }
-
   async importChatHistoryV2(
     data: any[],
     options: {
@@ -438,7 +296,6 @@ export class PageAssistDatabase {
     const { replaceExisting = false, mergeData = true } = options
 
     if (!mergeData && !replaceExisting) {
-      // Clear existing data
       await this.deleteAllChatHistory()
     }
 
@@ -458,93 +315,6 @@ export class PageAssistDatabase {
           await db.messages.put(message)
         }
       }
-    }
-  }
-
-  async importPromptsV2(
-    data: Prompt[],
-    options: {
-      replaceExisting?: boolean
-      mergeData?: boolean
-    } = {}
-  ) {
-    const { replaceExisting = false, mergeData = true } = options
-
-    if (!mergeData && !replaceExisting) {
-      await db.prompts.clear()
-    }
-
-    for (const prompt of data) {
-      const existingPrompt = await db.prompts.get(prompt.id)
-
-      if (existingPrompt && !replaceExisting) {
-        continue
-      }
-
-      await db.prompts.put(prompt)
-    }
-  }
-
-  async importSessionFilesV2(
-    data: SessionFiles[],
-    options: {
-      replaceExisting?: boolean
-      mergeData?: boolean
-    } = {}
-  ) {
-    const { replaceExisting = false, mergeData = true } = options
-
-    if (!mergeData && !replaceExisting) {
-      await db.sessionFiles.clear()
-    }
-
-    for (const sessionFile of data) {
-      const existingSessionFile = await db.sessionFiles.get(
-        sessionFile.sessionId
-      )
-
-      if (existingSessionFile && !replaceExisting) {
-        if (mergeData) {
-          // Merge files arrays
-          const mergedFiles = [...existingSessionFile.files]
-          for (const newFile of sessionFile.files) {
-            if (!mergedFiles.find((f) => f.id === newFile.id)) {
-              mergedFiles.push(newFile)
-            }
-          }
-          await db.sessionFiles.put({
-            ...existingSessionFile,
-            files: mergedFiles
-          })
-        }
-        continue
-      }
-
-      await db.sessionFiles.put(sessionFile)
-    }
-  }
-
-  async importWebsharesV2(
-    data: Webshare[],
-    options: {
-      replaceExisting?: boolean
-      mergeData?: boolean
-    } = {}
-  ) {
-    const { replaceExisting = false, mergeData = true } = options
-
-    if (!mergeData && !replaceExisting) {
-      await db.webshares.clear()
-    }
-
-    for (const webshare of data) {
-      const existingWebshare = await db.webshares.get(webshare.id)
-
-      if (existingWebshare && !replaceExisting) {
-        continue
-      }
-
-      await db.webshares.put(webshare)
     }
   }
 
@@ -569,18 +339,6 @@ export class PageAssistDatabase {
       }
 
       await db.projectFolders.put(folder)
-    }
-  }
-
-  async importUserSettingsV2(data: UserSettings[]) {
-    // user_id is the owner id needed to delete share links on the server, so
-    // only adopt the imported one when this device has no share links of its own
-    if ((await db.webshares.count()) > 0) {
-      return
-    }
-
-    for (const settings of data) {
-      await db.userSettings.put(settings)
     }
   }
 }

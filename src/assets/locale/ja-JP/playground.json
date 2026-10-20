@@ -1,10 +1,4 @@
 {
-  "ollamaState": {
-    "searching": "Ollamaを検索中 🦙",
-    "running": "Ollamaが実行中 🦙",
-    "notRunning": "Ollamaに接続できません 🦙",
-    "connectionError": "接続エラーが発生しているようです。トラブルシューティングについては<anchor>ドキュメント</anchor>をご覧ください。"
-  },
   "formError": {
     "noModel": "モデルを選択してください",
     "noEmbeddingModel": "設定 > RAGページでembeddingモデルを設定してください"
@@ -46,7 +40,6 @@
   "sendWhenEnter": "Enterキーを押すと送信",
   "welcome": "こんにちは！本日はどのようなお手伝いができますか？",
   "useOCR": "画像からテキストを抽出（OCR）",
-  "fileRetrievalEnabled": "ドキュメントのRAGを有効にする",
   "yapiSetup": {
     "hint": "Y-API の API キーを入力すると、どのページでも会話を始められます。",
     "button": "API キーを追加",

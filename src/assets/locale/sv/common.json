@@ -149,5 +149,7 @@
   "downloading": "Laddar ner",
   "cancelPullingModel": {
     "confirm": "Är du säker på att du vill avbryta nedladdningen? Detta kommer att stoppa nedladdningsprocessen. Enligt Ollama-dokumentationen kan du återuppta från där du slutade."
-  }
+  },
+  "more": "More",
+  "goBack": "Go back"
 }

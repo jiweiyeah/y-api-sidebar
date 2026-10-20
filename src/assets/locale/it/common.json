@@ -230,5 +230,7 @@
   "cancelPullingModel": {
     "confirm": "Sei sicuro di voler annullare il download? Questo interromperà il processo di download. Secondo la documentazione di Ollama, puoi riprendere da dove hai interrotto."
   },
-  "saveChat": "Salva Chat"
+  "saveChat": "Salva Chat",
+  "more": "More",
+  "goBack": "Go back"
 }

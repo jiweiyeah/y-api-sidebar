@@ -6,19 +6,16 @@ import { webUIResumeLastChat } from "@/services/app"
 import {
   formatToChatHistory,
   formatToMessage,
-  getPromptById,
   getRecentChatFromWebUI
 } from "@/db/dexie/helpers"
-import { useStoreChatModelSettings } from "@/store/model"
 import { useSmartScroll } from "@/hooks/useSmartScroll"
 import { ChevronDown } from "lucide-react"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
-import { otherUnsupportedTypes } from "../Knowledge/utils/unsupported-types"
+
 const PlaygroundComponent = () => {
   const drop = React.useRef<HTMLDivElement>(null)
   const [dropedFile, setDropedFile] = React.useState<File | undefined>()
-  const [defaultWebUIPrompt] = useStorage("defaultWebUIPrompt", undefined)
   const [hideChatScrollbar] = useStorage("hideChatScrollbar", false)
 
   const [chatBackgroundImage] = useStorage({
@@ -29,20 +26,15 @@ const PlaygroundComponent = () => {
   })
 
   const {
-    selectedKnowledge,
     messages,
     historyId,
     setHistoryId,
     setHistory,
     setMessages,
-    setSelectedSystemPrompt,
     streaming,
     webuiTemporaryChat,
-    temporaryChat,
-    setTemporaryChat,
-    setSelectedQuickPrompt
+    setTemporaryChat
   } = useMessageOption()
-  const { setSystemPrompt } = useStoreChatModelSettings()
   const { containerRef, isAutoScrollToBottom, autoScrollToBottom } =
     useSmartScroll(messages, streaming, 120, historyId)
 
@@ -51,10 +43,6 @@ const PlaygroundComponent = () => {
   >("idle")
 
   React.useEffect(() => {
-    if (selectedKnowledge) {
-      return
-    }
-
     if (!drop.current) {
       return
     }
@@ -71,20 +59,16 @@ const PlaygroundComponent = () => {
 
       const files = Array.from(e.dataTransfer?.files || [])
 
-      const hasUnsupportedFiles = files.some((file) =>
-        otherUnsupportedTypes.includes(file.type)
-      )
+      const onlyImages = files.every((file) => file.type.startsWith("image/"))
 
-      if (hasUnsupportedFiles) {
+      if (!onlyImages) {
         setDropState("error")
         return
       }
 
-      const newFiles = Array.from(e.dataTransfer?.files || []).slice(0, 5) // Allow multiple files
+      const newFiles = files.slice(0, 1)
       if (newFiles.length > 0) {
-        newFiles.forEach((file) => {
-          setDropedFile(file)
-        })
+        setDropedFile(newFiles[0])
       }
     }
     const handleDragEnter = (e: DragEvent) => {
@@ -112,7 +96,7 @@ const PlaygroundComponent = () => {
         drop.current.removeEventListener("dragleave", handleDragLeave)
       }
     }
-  }, [selectedKnowledge])
+  }, [])
 
   const setRecentMessagesOnLoad = async () => {
     const isEnabled = await webUIResumeLastChat()
@@ -125,44 +109,9 @@ const PlaygroundComponent = () => {
         setHistoryId(recentChat.history.id)
         setHistory(formatToChatHistory(recentChat.messages))
         setMessages(formatToMessage(recentChat.messages))
-
-        const lastUsedPrompt = recentChat?.history?.last_used_prompt
-        if (lastUsedPrompt) {
-          if (lastUsedPrompt.prompt_id) {
-            const prompt = await getPromptById(lastUsedPrompt.prompt_id)
-            if (prompt) {
-              setSelectedSystemPrompt(lastUsedPrompt.prompt_id)
-              setSystemPrompt(prompt.content)
-            }
-          }
-          setSystemPrompt(lastUsedPrompt.prompt_content)
-        }
       }
     }
   }
-
-  React.useEffect(() => {
-    const loadDefaultPrompt = async () => {
-      if (defaultWebUIPrompt && messages.length === 0) {
-        try {
-          const prompt = await getPromptById(defaultWebUIPrompt)
-          if (prompt) {
-            if (prompt.is_system) {
-              setSelectedSystemPrompt(prompt.id)
-              setSystemPrompt(prompt.content)
-            } else {
-              setSelectedSystemPrompt(undefined)
-              setSelectedQuickPrompt(prompt!.content)
-            }
-          }
-        } catch (error) {
-          console.error("Failed to load default prompt:", error)
-        }
-      }
-    }
-
-    loadDefaultPrompt()
-  }, [defaultWebUIPrompt])
 
   React.useEffect(() => {
     setRecentMessagesOnLoad()
@@ -198,7 +147,9 @@ const PlaygroundComponent = () => {
       )}
       <div
         ref={containerRef}
-        className={`${hideChatScrollbar ? "no-scrollbar" : "custom-scrollbar"} flex h-full w-full flex-col items-center overflow-x-hidden overflow-y-auto px-5 relative z-10`}>
+        className={`${
+          hideChatScrollbar ? "no-scrollbar" : "custom-scrollbar"
+        } flex h-full w-full flex-col items-center overflow-x-hidden overflow-y-auto px-5 relative z-10`}>
         <PlaygroundChat />
       </div>
       <div className="absolute bottom-0 w-full z-10">
@@ -206,6 +157,7 @@ const PlaygroundComponent = () => {
           <div className="absolute bottom-full mb-2 z-10 left-0 right-0 flex justify-center pointer-events-none">
             <button
               onClick={() => autoScrollToBottom()}
+              aria-label="Scroll to latest message"
               className="bg-gray-50 shadow border border-gray-200 dark:border-none dark:bg-white/20 p-1.5 rounded-full pointer-events-auto hover:bg-gray-100 dark:hover:bg-white/30 transition-colors">
               <ChevronDown className="size-4 text-gray-600 dark:text-gray-300" />
             </button>

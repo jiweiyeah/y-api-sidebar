@@ -1,18 +1,12 @@
-import { getOllamaURL, isOllamaRunning } from "../services/ollama"
 import { browser } from "wxt/browser"
-import { clearBadge, streamDownload, cancelDownload } from "@/utils/pull-ollama"
 import { Storage } from "@plasmohq/storage"
 import { getInitialConfig } from "@/services/action"
-import { getCustomCopilotPrompts, getCopilotPromptsEnabledState, type CustomCopilotPrompt } from "@/services/application"
-import { startMcpOAuthFlow, disconnectMcpOAuth } from "@/libs/mcp/oauth-flow"
-import { McpServerDb } from "@/db/dexie/mcp"
 
 export default defineBackground({
   main() {
     const storage = new Storage({
       area: "local"
     })
-    let isCopilotRunning: boolean = false
     let actionIconClick: string = "webui"
     let contextMenuClick: string = "sidePanel"
     const contextMenuId = {
@@ -20,72 +14,17 @@ export default defineBackground({
       sidePanel: "open-side-panel-pa"
     }
 
-    let customCopilotMenuIds: string[] = []
-    const builtinCopilotMenus = [
-      { id: "summarize-pa", key: "summary", title: "Summarize" },
-      { id: "explain-pa", key: "explain", title: "Explain" },
-      { id: "rephrase-pa", key: "rephrase", title: "Rephrase" },
-      { id: "translate-pg", key: "translate", title: "Translate" },
-      { id: "custom-pg", key: "custom", title: "Custom" }
-    ]
-
-    const createBuiltinCopilotMenus = async () => {
-      const enabledState = await getCopilotPromptsEnabledState()
-
-      for (const menu of builtinCopilotMenus) {
-        // Remove existing menu
-        try {
-          await browser.contextMenus.remove(menu.id)
-        } catch (e) {
-          // Menu might not exist, ignore
-        }
-
-        // Create menu only if enabled
-        if (enabledState[menu.key]) {
-          browser.contextMenus.create({
-            id: menu.id,
-            title: menu.title,
-            contexts: ["selection"]
-          })
-        }
-      }
-    }
-
-    const createCustomCopilotMenus = async () => {
-      // Remove existing custom copilot menus
-      for (const menuId of customCopilotMenuIds) {
-        try {
-          await browser.contextMenus.remove(menuId)
-        } catch (e) {
-          // Menu might not exist, ignore
-        }
-      }
-      customCopilotMenuIds = []
-
-      // Create new custom copilot menus
-      const customPrompts = await getCustomCopilotPrompts()
-      const enabledPrompts = customPrompts.filter(p => p.enabled)
-
-      for (const prompt of enabledPrompts) {
-        const menuId = `custom_copilot_${prompt.id}`
-        customCopilotMenuIds.push(menuId)
-        browser.contextMenus.create({
-          id: menuId,
-          title: prompt.title,
-          contexts: ["selection"]
-        })
-      }
+    const contextMenuTitle = {
+      webui: browser.i18n.getMessage("openOptionToChat"),
+      sidePanel: browser.i18n.getMessage("openSidePanelToChat")
     }
 
     const initialize = async () => {
       try {
         storage.watch({
           actionIconClick: (value) => {
-            const oldValue = value?.oldValue || "webui"
             const newValue = value?.newValue || "webui"
-            if (oldValue !== newValue) {
-              actionIconClick = newValue
-            }
+            actionIconClick = newValue
           },
           contextMenuClick: (value) => {
             const oldValue = value?.oldValue || "sidePanel"
@@ -99,26 +38,6 @@ export default defineBackground({
                 contexts: ["page", "selection"]
               })
             }
-          },
-          customCopilotPrompts: async () => {
-            // Recreate custom copilot menus when prompts change
-            await createCustomCopilotMenus()
-          },
-          youtubeAutoSummarize: async (value) => {
-            const newValue = value?.newValue || false
-            const tabs = await browser.tabs.query({
-              url: "*://www.youtube.com/watch*"
-            })
-            tabs.forEach((tab) => {
-              if (tab.id) {
-                browser.tabs
-                  .sendMessage(tab.id, {
-                    type: "youtube_summarize_setting_changed",
-                    enabled: newValue
-                  })
-                  .catch(() => {})
-              }
-            })
           }
         })
         const data = await getInitialConfig()
@@ -130,86 +49,14 @@ export default defineBackground({
           title: contextMenuTitle[contextMenuClick],
           contexts: ["page", "selection"]
         })
-
-        // Create built-in copilot menus
-        await createBuiltinCopilotMenus()
-
-        // Create custom copilot menus
-        await createCustomCopilotMenus()
       } catch (error) {
         console.error("Error in initLogic:", error)
       }
     }
 
-    browser.runtime.onMessage.addListener(async (message, sender) => {
-      if (message.type === "refresh_custom_copilot_menus") {
-        await createCustomCopilotMenus()
-        return Promise.resolve({ success: true })
-      } else if (message.type === "refresh_builtin_copilot_menus") {
-        await createBuiltinCopilotMenus()
-        return Promise.resolve({ success: true })
-      } else if (message.type === "check_youtube_summarize_enabled") {
-        const enabled = await storage.get("youtubeAutoSummarize")
-        return Promise.resolve({ enabled: enabled || false })
-      } else if (message.type === "sidepanel") {
+    browser.runtime.onMessage.addListener(async (message) => {
+      if (message.type === "sidepanel") {
         await browser.sidebarAction.open()
-      } else if (message.type === "pull_model") {
-        const ollamaURL = await getOllamaURL()
-
-        const isRunning = await isOllamaRunning()
-
-        if (!isRunning) {
-          setBadgeText({ text: "E" })
-          setBadgeBackgroundColor({ color: "#FF0000" })
-          setTitle({ title: "Ollama is not running" })
-          setTimeout(() => {
-            clearBadge()
-          }, 5000)
-          return
-        }
-
-        await streamDownload(ollamaURL, message.modelName)
-      } else if (message.type === "cancel_download") {
-        cancelDownload()
-      } else if (message.type === "mcp_oauth_start") {
-        const mcpDb = new McpServerDb()
-        const server = await mcpDb.getById(message.serverId)
-        if (!server) {
-          return Promise.resolve({ success: false, error: "Server not found" })
-        }
-        const result = await startMcpOAuthFlow(server)
-        return Promise.resolve(result)
-      } else if (message.type === "mcp_oauth_disconnect") {
-        await disconnectMcpOAuth(message.serverId)
-        return Promise.resolve({ success: true })
-      } else if (message.type === "youtube_summarize") {
-        if (sender.tab?.id) {
-          chrome.sidePanel.open({
-            tabId: sender.tab.id
-          })
-        }
-
-        setTimeout(
-          async () => {
-            const prompt = `Summarize this YouTube video: "${message.videoTitle}".\n\nPlease provide a comprehensive summary of the video content.`
-
-            await browser.runtime.sendMessage({
-              from: "background",
-              type: "yt_summarize",
-              text: prompt
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      }
-    })
-
-    browser.runtime.onConnect.addListener((port) => {
-      if (port.name === "pgCopilot") {
-        isCopilotRunning = true
-        port.onDisconnect.addListener(() => {
-          isCopilotRunning = false
-        })
       }
     })
 
@@ -223,11 +70,6 @@ export default defineBackground({
       }
     })
 
-    const contextMenuTitle = {
-      webui: browser.i18n.getMessage("openOptionToChat"),
-      sidePanel: browser.i18n.getMessage("openSidePanelToChat")
-    }
-
     browser.contextMenus.onClicked.addListener(async (info, tab) => {
       if (info.menuItemId === "open-side-panel-pa") {
         chrome.sidePanel.open({
@@ -237,102 +79,8 @@ export default defineBackground({
         browser.tabs.create({
           url: browser.runtime.getURL("/options.html")
         })
-      } else if (info.menuItemId === "summarize-pa") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-        // this is a bad method hope somone can fix it :)
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              from: "background",
-              type: "summary",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (info.menuItemId === "rephrase-pa") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "rephrase",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (info.menuItemId === "translate-pg") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "translate",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (info.menuItemId === "explain-pa") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "explain",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (info.menuItemId === "custom-pg") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "custom",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (typeof info.menuItemId === "string" && info.menuItemId.startsWith("custom_copilot_")) {
-        // Handle custom copilot prompts
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: info.menuItemId,
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
       }
     })
-
-    const sidePanelClose = (chrome.sidePanel as any)?.close as
-      | ((options: { tabId?: number; windowId?: number }) => Promise<void>)
-      | undefined
 
     browser.commands.onCommand.addListener((command) => {
       switch (command) {
@@ -342,28 +90,6 @@ export default defineBackground({
             async (tabs) => {
               const tab = tabs[0]
               if (!tab?.id) return
-
-              if (isCopilotRunning && sidePanelClose) {
-                const closeAttempts: Array<{
-                  tabId?: number
-                  windowId?: number
-                }> = []
-                if (tab.windowId !== undefined) {
-                  closeAttempts.push({ windowId: tab.windowId })
-                }
-                closeAttempts.push({ tabId: tab.id })
-
-                for (const attempt of closeAttempts) {
-                  try {
-                    await sidePanelClose(attempt)
-                    return
-                  } catch (e) {
-                  }
-                }
-                console.warn(
-                  "Side panel reported open but close() rejected for both windowId and tabId"
-                )
-              }
 
               chrome.sidePanel.open({
                 tabId: tab.id

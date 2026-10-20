@@ -1,25 +1,9 @@
-import { cleanUrl } from "@/libs/clean-url"
 import { db } from "./schema"
-import { OpenAIModelConfig, OpenAIModelConfigs } from "./types"
-import { deleteAllModelsByProviderId } from "./models"
-import {
-  addOpenAICofigFB,
-  deleteOpenAIConfigFB,
-  getAllOpenAIConfigFB,
-  getOpenAIConfigByIdFB,
-  updateOpenAIConfigApiKeyFB,
-  updateOpenAIConfigFB
-} from "../openai"
-
-export const generateID = () => {
-  return "openai-xxxx-xxx-xxxx".replace(/[x]/g, () => {
-    const r = Math.floor(Math.random() * 16)
-    return r.toString(16)
-  })
-}
+import { OpenAIModelConfig } from "./types"
+import { Y_API_PROVIDER, Y_API_PROVIDER_ID } from "@/utils/oai-api-providers"
 
 export class OpenAIModelDb {
-  getAll = async (): Promise<OpenAIModelConfigs> => {
+  getAll = async (): Promise<OpenAIModelConfig[]> => {
     return await db.openaiConfigs.orderBy("createdAt").reverse().toArray()
   }
 
@@ -38,8 +22,9 @@ export class OpenAIModelDb {
   delete = async (id: string): Promise<void> => {
     return await db.openaiConfigs.delete(id)
   }
+
   async importDataV2(
-    data: OpenAIModelConfigs,
+    data: OpenAIModelConfig[],
     options: {
       replaceExisting?: boolean
       mergeData?: boolean
@@ -48,12 +33,12 @@ export class OpenAIModelDb {
     const { replaceExisting = false, mergeData = true } = options
 
     for (const oai of data) {
-      const existingKnowledge = await this.getById(oai.id)
+      const existing = await this.getById(oai.id)
 
-      if (existingKnowledge && !replaceExisting) {
+      if (existing && !replaceExisting) {
         if (mergeData) {
           await this.update({
-            ...existingKnowledge
+            ...existing
           })
         }
         continue
@@ -64,132 +49,82 @@ export class OpenAIModelDb {
   }
 }
 
-export const addOpenAICofig = async ({
-  name,
-  baseUrl,
-  apiKey,
-  provider,
-  headers,
-  fix_cors,
-  vertexProjectId,
-  vertexLocation
-}: {
-  name: string
-  baseUrl: string
-  apiKey: string
-  provider?: string
-  headers?: { key: string; value: string }[]
-  fix_cors?: boolean
-  vertexProjectId?: string
-  vertexLocation?: string
-}) => {
+/**
+ * The Y-API provider is the only one the extension supports, so its row is
+ * created once with a fixed id, name and base URL. Users never edit those
+ * fields; they only supply the API key.
+ */
+export const ensureYApiProvider = async (): Promise<OpenAIModelConfig> => {
   const openaiDb = new OpenAIModelDb()
-  const id = generateID()
+  const existing = await openaiDb.getById(Y_API_PROVIDER_ID)
+
+  if (existing) {
+    const needsRepair =
+      existing.baseUrl !== Y_API_PROVIDER.baseUrl ||
+      existing.name !== Y_API_PROVIDER.name ||
+      existing.provider !== Y_API_PROVIDER.provider
+
+    if (!needsRepair) {
+      return existing
+    }
+
+    const repaired: OpenAIModelConfig = {
+      ...existing,
+      name: Y_API_PROVIDER.name,
+      baseUrl: Y_API_PROVIDER.baseUrl,
+      provider: Y_API_PROVIDER.provider,
+      db_type: "openai"
+    }
+    await openaiDb.update(repaired)
+    return repaired
+  }
+
   const config: OpenAIModelConfig = {
-    id,
-    name,
-    baseUrl: cleanUrl(baseUrl),
-    apiKey,
+    id: Y_API_PROVIDER_ID,
+    name: Y_API_PROVIDER.name,
+    baseUrl: Y_API_PROVIDER.baseUrl,
+    apiKey: "",
     createdAt: Date.now(),
     db_type: "openai",
-    provider,
-    headers,
-    fix_cors,
-    vertexProjectId,
-    vertexLocation
+    provider: Y_API_PROVIDER.provider
   }
   await openaiDb.create(config)
-  await addOpenAICofigFB(config)
-  return id
+  return config
+}
+
+export const getYApiProvider = async (): Promise<OpenAIModelConfig> => {
+  return await ensureYApiProvider()
+}
+
+export const setYApiApiKey = async (apiKey: string) => {
+  const openaiDb = new OpenAIModelDb()
+  const config = await ensureYApiProvider()
+  const updated: OpenAIModelConfig = {
+    ...config,
+    apiKey: apiKey.trim()
+  }
+  await openaiDb.update(updated)
+  return updated
 }
 
 export const getAllOpenAIConfig = async () => {
   try {
+    await ensureYApiProvider()
     const openaiDb = new OpenAIModelDb()
     const configs = await openaiDb.getAll()
     return configs.filter((config) => config?.db_type === "openai")
   } catch (e) {
-    if (isDatabaseClosedError(e)) {
-      return await getAllOpenAIConfigFB()
-    }
+    console.error("Failed to load providers", e)
     return []
   }
-}
-
-export const updateOpenAIConfig = async ({
-  id,
-  name,
-  baseUrl,
-  apiKey,
-  headers,
-  fix_cors,
-  vertexProjectId,
-  vertexLocation
-}: {
-  id: string
-  name: string
-  baseUrl: string
-  apiKey: string
-  headers?: { key: string; value: string }[]
-  fix_cors?: boolean
-  vertexProjectId?: string
-  vertexLocation?: string
-}) => {
-  const openaiDb = new OpenAIModelDb()
-  const oldData = await openaiDb.getById(id)
-  const config: OpenAIModelConfig = {
-    ...oldData,
-    id,
-    name,
-    baseUrl: cleanUrl(baseUrl),
-    apiKey,
-    createdAt: Date.now(),
-    db_type: "openai",
-    headers: headers || [],
-    fix_cors: fix_cors,
-    ...(vertexProjectId !== undefined && { vertexProjectId }),
-    ...(vertexLocation !== undefined && { vertexLocation })
-  }
-
-  await openaiDb.update(config)
-  await updateOpenAIConfigFB(config)
-  return config
-}
-
-export const deleteOpenAIConfig = async (id: string) => {
-  const openaiDb = new OpenAIModelDb()
-  await openaiDb.delete(id)
-  await deleteAllModelsByProviderId(id)
-  await deleteOpenAIConfigFB(id)
-}
-
-export const updateOpenAIConfigApiKey = async (
-  id: string,
-  { name, baseUrl, apiKey }: { name: string; baseUrl: string; apiKey: string }
-) => {
-  const openaiDb = new OpenAIModelDb()
-  const config: OpenAIModelConfig = {
-    id,
-    name,
-    baseUrl: cleanUrl(baseUrl),
-    apiKey,
-    createdAt: Date.now(),
-    db_type: "openai"
-  }
-
-  await openaiDb.update(config)
-  await updateOpenAIConfigApiKeyFB(config)
 }
 
 export const getOpenAIConfigById = async (id: string) => {
   try {
     const openaiDb = new OpenAIModelDb()
-    const config = await openaiDb.getById(id)
-    return config
+    return await openaiDb.getById(id)
   } catch (e) {
-    if (isDatabaseClosedError(e)) {
-      return await getOpenAIConfigByIdFB(id)
-    }
+    console.error("Failed to load provider", e)
     return null
   }
 }

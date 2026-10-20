@@ -1,22 +1,13 @@
-import {
-  BookIcon,
-  BrainCircuitIcon,
-  OrbitIcon,
-  BlocksIcon,
-  InfoIcon,
-  CombineIcon,
-  CpuIcon,
-  BrainIcon,
-  MousePointerClickIcon,
-  PlugZapIcon,
-} from "lucide-react"
+import { BrainCircuitIcon, OrbitIcon, CpuIcon, InfoIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useLocation } from "react-router-dom"
 import { LinkComponent } from "./LinkComponent"
-import { MCPIcon } from "../Icons/MCPIcon"
 
-
-export const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
+export const SettingsLayout = ({
+  children
+}: {
+  children: React.ReactNode
+}) => {
   const location = useLocation()
   const { t } = useTranslation(["settings", "common", "openai"])
   return (
@@ -36,70 +27,16 @@ export const SettingsLayout = ({ children }: { children: React.ReactNode }) => {
                     current={location.pathname}
                   />
                   <LinkComponent
-                    href="/settings/rag"
-                    name={t("rag.title")}
-                    icon={CombineIcon}
-                    current={location.pathname}
-                  />
-                  <LinkComponent
                     href="/settings/openai"
                     name={t("openai:settings")}
                     icon={CpuIcon}
                     current={location.pathname}
                   />
                   <LinkComponent
-                    href="/settings/mcp"
-                    name={t("mcpSettings.title")}
-                    icon={MCPIcon}
-                    current={location.pathname}
-                    beta
-                  />
-                  {import.meta.env.BROWSER !== "firefox" && (
-                    <LinkComponent
-                      href="/settings/page-action"
-                      name={t("pageAction.title", "Page Action")}
-                      icon={MousePointerClickIcon}
-                      current={location.pathname}
-                      beta
-                    />
-                  )}
-                  {import.meta.env.BROWSER !== "firefox" && (
-                    <LinkComponent
-                      href="/settings/webmcp"
-                      name={t("webMcp.title", "WebMCP")}
-                      icon={PlugZapIcon}
-                      current={location.pathname}
-                      beta
-                    />
-                  )}
-                  <LinkComponent
-                    href="/settings/memory"
-                    name={t("memory.title", "Memory")}
-                    icon={BrainIcon}
-                    current={location.pathname}
-                    beta
-                  />
-                  <LinkComponent
                     href="/settings/model"
                     name={t("manageModels.title")}
                     current={location.pathname}
                     icon={BrainCircuitIcon}
-                  />
-                  <LinkComponent
-                    href="/settings/knowledge"
-                    name={
-                      <div className="inline-flex items-center gap-2">
-                        {t("manageKnowledge.title")}
-                      </div>
-                    }
-                    icon={BlocksIcon}
-                    current={location.pathname}
-                  />
-                  <LinkComponent
-                    href="/settings/prompt"
-                    name={t("managePrompts.title")}
-                    icon={BookIcon}
-                    current={location.pathname}
                   />
                   <LinkComponent
                     href="/settings/about"

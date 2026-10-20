@@ -37,11 +37,9 @@ import { useTranslation } from "react-i18next"
 import { Loader2, RotateCcw, Upload } from "lucide-react"
 import { toBase64 } from "@/libs/to-base64"
 import { PageAssistDatabase } from "@/db/dexie/chat"
-import { isFireFox, isFireFoxPrivateMode } from "@/utils/is-private-mode"
-import { firefoxSyncDataForPrivateMode } from "@/db/dexie/firefox-sync"
 
 export const SystemSettings = () => {
-  const { t } = useTranslation(["settings", "knowledge"])
+  const { t } = useTranslation("settings")
   const queryClient = useQueryClient()
   const { clearChat } = useMessageOption()
   const { increase, decrease, scale } = useFontSize()
@@ -88,20 +86,11 @@ export const SystemSettings = () => {
   })
 
   const SECTION_LABELS: Record<ExportSection, string> = {
-    knowledge: "Knowledge Base",
     chat: "Chat History",
     projectFolders: "Project Folders",
-    sessionFiles: "Chat Files",
-    vector: "Vector Embeddings",
-    prompts: "Prompts",
-    memories: "Memories",
-    oaiConfigs: "OpenAI Configurations",
+    oaiConfigs: "Y-API Configuration",
     nicknames: "Model Nicknames",
     models: "Custom Models",
-    modelState: "Enabled/Disabled Models",
-    providerState: "Enabled/Disabled Providers",
-    mcpServers: "MCP Servers",
-    webshares: "Shared Links",
     storageLocal: "Local Settings",
     storageSync: "Synced Settings"
   }
@@ -361,22 +350,6 @@ export const SystemSettings = () => {
     }
   }
 
-  const syncFirefoxData = useMutation({
-    mutationFn: firefoxSyncDataForPrivateMode,
-    onSuccess: () => {
-      notification.success({
-        message:
-          "Firefox data synced successfully, You don't need to do this again"
-      })
-    },
-    onError: (error) => {
-      console.log(error)
-      notification.error({
-        message: "Firefox data sync failed"
-      })
-    }
-  })
-
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -477,31 +450,6 @@ export const SystemSettings = () => {
           }}
         />
       </div>
-      {isFireFox && !isFireFoxPrivateMode && (
-        <div className="flex flex-col sm:flex-row mb-3 gap-3 sm:gap-0 sm:justify-between sm:items-center">
-          <span className="text-gray-700 dark:text-neutral-50">
-            <BetaTag />
-            {t("generalSettings.system.firefoxPrivateModeSync.label", {
-              defaultValue:
-                "Sync Custom Models, Prompts for Firefox Private Windows (Incognito Mode)"
-            })}
-          </span>
-          <button
-            onClick={() => {
-              syncFirefoxData.mutate()
-            }}
-            disabled={syncFirefoxData.isPending}
-            className="bg-gray-800 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-md cursor-pointer w-full sm:w-auto">
-            {syncFirefoxData.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              t("generalSettings.system.firefoxPrivateModeSync.button", {
-                defaultValue: "Sync Data"
-              })
-            )}
-          </button>
-        </div>
-      )}
       <div className="flex flex-col sm:flex-row mb-3 gap-3 sm:gap-0 sm:justify-between sm:items-center">
         <span className="text-gray-700 dark:text-neutral-50">
           {t("generalSettings.system.storageSyncEnabled.label")}
@@ -549,7 +497,7 @@ export const SystemSettings = () => {
             htmlFor="background-image-upload"
             className="bg-gray-800 inline-flex gap-2 dark:bg-white text-white dark:text-gray-900 px-4 py-2 rounded-md cursor-pointer">
             <Upload className="size-4" />
-            {t("knowledge:form.uploadFile.label")}
+            {t("generalSettings.system.chatBackgroundImage.upload", "Upload")}
           </label>
           <input
             type="file"
@@ -638,7 +586,7 @@ export const SystemSettings = () => {
       </div>
 
       <Modal
-        title="Export Page Assist Data"
+        title="Export Y-API Sidebar Data"
         open={exportModalOpen}
         onCancel={() => setExportModalOpen(false)}
         footer={
@@ -675,17 +623,10 @@ export const SystemSettings = () => {
             </label>
           ))}
         </Checkbox.Group>
-        {exportSelected.includes("knowledge") &&
-          !exportSelected.includes("vector") && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-3">
-              Knowledge entries depend on vector embeddings. Exporting without
-              vectors may leave imports unusable for retrieval.
-            </p>
-          )}
       </Modal>
 
       <Modal
-        title="Import Page Assist Data"
+        title="Import Y-API Sidebar Data"
         open={importModalOpen}
         onCancel={() => {
           if (importDataMutation.isPending) return
@@ -777,7 +718,7 @@ export const SystemSettings = () => {
           />
         }>
         <p className="text-sm text-gray-600 dark:text-neutral-300 mb-3">
-          Map the fields in your file (left) to what Page Assist expects
+          Map the fields in your file (left) to what Y-API Sidebar expects
           (right). We pre-filled our best guess — adjust anything that looks
           wrong.
         </p>

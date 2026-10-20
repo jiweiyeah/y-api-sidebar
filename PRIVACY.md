@@ -12,8 +12,7 @@ submitted to the Chrome Web Store.
 ## Summary
 
 Y-API Sidebar stores your data in your browser and sends nothing to us. The only
-outbound traffic is the chat request you send to the API endpoint you configure,
-plus web-search queries if you turn that feature on.
+outbound traffic is the chat request you send to Y-API.
 
 We do not run analytics, telemetry, crash reporting or remote config.
 
@@ -34,46 +33,36 @@ of it is uploaded to us.
 
 | Data | Why |
 | --- | --- |
-| API key you paste in | Authenticate your requests to the endpoint you configured |
-| Provider settings (name, base URL, custom headers) | Know where to send requests |
-| The list of models you enabled | Populate the model picker |
+| API key you paste in | Authenticate your requests to Y-API |
+| The list of models you added | Populate the model picker |
 | Chat history and messages | Show your conversations; generate titles |
-| Prompts you save | Reuse them |
-| Knowledge-base documents you upload | Local retrieval for "chat with document" |
-| Preferences (theme, language, shortcuts, TTS voice) | Remember your settings |
+| Project folders and chat pins | Organise your history |
+| Preferences (theme, language, OCR language, shortcuts) | Remember your settings |
 
 Uninstalling the extension deletes all of it. Settings → General has an export
 function if you want a copy first.
 
 ## 3. What leaves your device
 
-Only two categories, and only when you act.
+Only one category, and only when you act.
 
 ### 3.1 Chat requests
 
 When you send a message, the extension transmits:
 
 - your message text,
-- the page content or selected text you asked about (if you used "chat with
-  current page"),
-- any document excerpts retrieved locally for your question,
+- any images you attached,
+- the page content you asked about (if you used "chat with current page"),
+- the system prompt and sampling parameters you set for that chat,
 - your API key, in the `Authorization` header.
 
-These go to the endpoint configured in Settings → OpenAI Compatible API. The
-default is [api.y-api.bestvirtualgoods.com/v1](https://api.y-api.bestvirtualgoods.com/v1), operated by Y-API. You
-may point it at any other OpenAI-compatible endpoint, including one you host
-yourself; in that case that operator's policy applies instead of ours.
+These go to [api.y-api.bestvirtualgoods.com/v1](https://api.y-api.bestvirtualgoods.com/v1),
+operated by Y-API. The base URL is fixed in this build; it cannot be changed.
 
 Y-API's handling of API requests is governed by the terms published at
 [y-api.bestvirtualgoods.com](https://y-api.bestvirtualgoods.com/).
 
-### 3.2 Web search (optional, off unless you enable it)
-
-If you enable web search, your query is sent to the search provider you selected
-in settings (for example SearXNG, DuckDuckGo, Tavily, Serper or Brave). That
-provider's policy applies.
-
-### 3.3 What we do not collect
+### 3.2 What we do not collect
 
 No analytics or telemetry SDK. No crash reports. No advertising identifiers. No
 remote configuration. No account system. We do not read pages you have not asked
@@ -84,20 +73,16 @@ extension on.
 
 | Permission | Why it is needed |
 | --- | --- |
-| `activeTab`, `scripting` | Read the current page only after you ask a question about it |
-| `storage`, `unlimitedStorage` | Keep chat history, settings and knowledge base locally |
-| `sidePanel`, `action` | The side panel UI and toolbar button |
-| `contextMenus` | Right-click to ask about selected text |
-| `declarativeNetRequest` | Adjust request headers so self-hosted endpoints without CORS work |
-| `notifications` | Notify you when a long-running task finishes |
-| `tts` | Read replies aloud, only if you enable it |
-| `host_permissions` (`http://*/*`, `https://*/*`) | Reach whichever endpoint you configure. Cannot be narrowed to one domain because users may self-host |
+| `storage`, `unlimitedStorage` | Keep your API key, chat history and settings locally |
+| `sidePanel` | The side panel UI |
+| `contextMenus` | Right-click to open the side panel or the full-page chat |
+| `host_permissions` (`https://api.y-api.bestvirtualgoods.com/*`) | The only backend the extension talks to |
 
 ## 5. Third parties
 
 We do not sell, rent or share your data. There is no third-party SDK bundled in
-this extension that transmits data. The only third parties involved are the ones
-you configure yourself: your API endpoint and, optionally, your search provider.
+this extension that transmits data. The only third party involved is Y-API, which
+receives your chat requests.
 
 ## 6. Data retention and deletion
 

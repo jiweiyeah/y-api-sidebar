@@ -4,22 +4,17 @@ import {
   ChevronLeft,
   ChevronRight,
   CogIcon,
-  ComputerIcon,
   GlobeIcon,
   PanelLeftIcon,
-  ZapIcon,
   SaveIcon
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { useLocation, NavLink } from "react-router-dom"
-import { SelectedKnowledge } from "../Option/Knowledge/SelectedKnowledge"
 import { ModelSelect } from "../Common/ModelSelect"
-import { PromptSelect } from "../Common/PromptSelect"
 import { useQuery } from "@tanstack/react-query"
 import { fetchChatModels } from "~/services/ollama"
 import { useMessageOption } from "~/hooks/useMessageOption"
 import { Avatar, Select, Tooltip } from "antd"
-import { getAllPrompts } from "@/db/dexie/helpers"
 import { ProviderIcons } from "../Common/ProviderIcon"
 import { NewChat } from "./NewChat"
 import { MoreOptions } from "./MoreOptions"
@@ -39,7 +34,6 @@ export const Header: React.FC<Props> = ({
   const { t } = useTranslation(["option", "common"])
   const { isRTL } = useUiDirection()
 
-  const [shareModeEnabled] = useStorage("shareMode", false)
   const [hideCurrentChatModelSettings] = useStorage(
     "hideCurrentChatModelSettings",
     false
@@ -48,9 +42,6 @@ export const Header: React.FC<Props> = ({
     selectedModel,
     setSelectedModel,
     clearChat,
-    selectedSystemPrompt,
-    setSelectedQuickPrompt,
-    setSelectedSystemPrompt,
     messages,
     streaming,
     historyId,
@@ -58,8 +49,7 @@ export const Header: React.FC<Props> = ({
   } = useMessageOption()
   const {
     data: models,
-    isLoading: isModelsLoading,
-    refetch
+    isLoading: isModelsLoading
   } = useQuery({
     queryKey: ["fetchModel"],
     queryFn: () => fetchChatModels(),
@@ -67,31 +57,7 @@ export const Header: React.FC<Props> = ({
     staleTime: 1000 * 60 * 1
   })
 
-  const { data: prompts, isLoading: isPromptLoading } = useQuery({
-    queryKey: ["fetchAllPromptsLayout"],
-    queryFn: getAllPrompts
-  })
-
   const { pathname } = useLocation()
-
-  const getPromptInfoById = (id: string) => {
-    return prompts?.find((prompt) => prompt.id === id)
-  }
-
-  const handlePromptChange = (value?: string) => {
-    if (!value) {
-      setSelectedSystemPrompt(undefined)
-      setSelectedQuickPrompt(undefined)
-      return
-    }
-    const prompt = getPromptInfoById(value)
-    if (prompt?.is_system) {
-      setSelectedSystemPrompt(prompt.id)
-    } else {
-      setSelectedSystemPrompt(undefined)
-      setSelectedQuickPrompt(prompt!.content)
-    }
-  }
 
   return (
     <div
@@ -126,7 +92,6 @@ export const Header: React.FC<Props> = ({
           <Select
             className="min-w-80  max-w-[460px]"
             placeholder={t("common:selectAModel")}
-            // loadingText={t("common:selectAModel")}
             value={selectedModel}
             onChange={(e) => {
               setSelectedModel(e)
@@ -164,56 +129,11 @@ export const Header: React.FC<Props> = ({
               value: model.model
             }))}
             size="large"
-            // onRefresh={() => {
-            //   refetch()
-            // }}
           />
         </div>
         <div className="lg:hidden">
           <ModelSelect />
         </div>
-        <span className="text-lg font-thin text-zinc-300 dark:text-zinc-600">
-          {"/"}
-        </span>
-        <div className="hidden lg:block">
-          <Select
-            size="large"
-            loading={isPromptLoading}
-            showSearch
-            placeholder={t("selectAPrompt")}
-            className="w-60"
-            allowClear
-            onChange={handlePromptChange}
-            value={selectedSystemPrompt}
-            filterOption={(input, option) =>
-              //@ts-ignore
-              option.label.key.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
-            options={prompts?.map((prompt) => ({
-              label: (
-                <span
-                  key={prompt.title}
-                  className="flex flex-row gap-3 items-center">
-                  {prompt.is_system ? (
-                    <ComputerIcon className="w-4 h-4" />
-                  ) : (
-                    <ZapIcon className="w-4 h-4" />
-                  )}
-                  {prompt.title}
-                </span>
-              ),
-              value: prompt.id
-            }))}
-          />
-        </div>
-        <div className="lg:hidden">
-          <PromptSelect
-            selectedSystemPrompt={selectedSystemPrompt}
-            setSelectedSystemPrompt={setSelectedSystemPrompt}
-            setSelectedQuickPrompt={setSelectedQuickPrompt}
-          />
-        </div>
-        <SelectedKnowledge />
       </div>
       <div className="flex flex-1 justify-end px-4">
         <div className="ml-4 flex items-center md:ml-6">
@@ -229,7 +149,6 @@ export const Header: React.FC<Props> = ({
             )}
             {messages.length > 0 && !streaming && (
               <MoreOptions
-                shareModeEnabled={shareModeEnabled}
                 historyId={historyId}
                 messages={messages}
               />

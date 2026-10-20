@@ -230,5 +230,7 @@
   "cancelPullingModel": {
     "confirm": "Jste si jisti, že chcete zastavit stahování modelu? Dle dokumentace Ollamy můžete ve stahování později pokračovat z místa, kde jste stahování ukončili."
   },
-  "saveChat": "Uložit chat"
+  "saveChat": "Uložit chat",
+  "more": "More",
+  "goBack": "Go back"
 }

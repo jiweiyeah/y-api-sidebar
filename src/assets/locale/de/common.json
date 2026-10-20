@@ -230,5 +230,7 @@
       "waiting_result": "Warten auf {{tool}} auf {{server}}"
     }
   },
-  "saveChat": "Chat speichern"
+  "saveChat": "Chat speichern",
+  "more": "More",
+  "goBack": "Go back"
 }

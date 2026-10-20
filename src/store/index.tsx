@@ -1,5 +1,4 @@
 import { create } from "zustand"
-import { ChatMessageKind, McpToolCall } from "@/libs/mcp/types"
 
 export type Message = {
   isBot: boolean
@@ -10,29 +9,15 @@ export type Message = {
   modelName?: string
   modelImage?: string
   id?: string
-  messageType?: string
   generationInfo?: any
   reasoning_time_taken?: number
-  messageKind?: ChatMessageKind
-  toolCalls?: McpToolCall[]
-  toolCallId?: string
-  toolName?: string
-  toolServerName?: string
-  toolError?: boolean
 }
 
 export type ChatHistory = {
-  role: "user" | "assistant" | "system" | "tool"
+  role: "user" | "assistant" | "system"
   content: string
   image?: string
   images?: string[]
-  messageType?: string
-  messageKind?: ChatMessageKind
-  toolCalls?: McpToolCall[]
-  toolCallId?: string
-  toolName?: string
-  toolServerName?: string
-  toolError?: boolean
 }[]
 
 type State = {
@@ -52,19 +37,6 @@ type State = {
   setIsProcessing: (isProcessing: boolean) => void
   selectedModel: string | null
   setSelectedModel: (selectedModel: string) => void
-  chatMode: "normal" | "rag" | "vision"
-  setChatMode: (chatMode: "normal" | "rag" | "vision") => void
-  isEmbedding: boolean
-  setIsEmbedding: (isEmbedding: boolean) => void
-  speechToTextLanguage: string
-  setSpeechToTextLanguage: (speechToTextLanguage: string) => void
-  currentURL: string
-  setCurrentURL: (currentURL: string) => void
-  selectedSystemPrompt: string | null
-  setSelectedSystemPrompt: (selectedSystemPrompt: string) => void
-
-  selectedQuickPrompt: string | null
-  setSelectedQuickPrompt: (selectedQuickPrompt: string) => void
 
   useOCR: boolean
   setUseOCR: (useOCR: boolean) => void
@@ -85,24 +57,8 @@ export const useStoreMessage = create<State>((set) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   isProcessing: false,
   setIsProcessing: (isProcessing) => set({ isProcessing }),
-  defaultSpeechToTextLanguage: "en-US",
   selectedModel: null,
   setSelectedModel: (selectedModel) => set({ selectedModel }),
-  chatMode: "normal",
-  setChatMode: (chatMode) => set({ chatMode }),
-  isEmbedding: false,
-  setIsEmbedding: (isEmbedding) => set({ isEmbedding }),
-  speechToTextLanguage: "en-US",
-  setSpeechToTextLanguage: (speechToTextLanguage) =>
-    set({ speechToTextLanguage }),
-  currentURL: "",
-  setCurrentURL: (currentURL) => set({ currentURL }),
-
-  selectedSystemPrompt: null,
-  setSelectedSystemPrompt: (selectedSystemPrompt) =>
-    set({ selectedSystemPrompt }),
-  selectedQuickPrompt: null,
-  setSelectedQuickPrompt: (selectedQuickPrompt) => set({ selectedQuickPrompt }),
 
   useOCR: false,
   setUseOCR: (useOCR) => set({ useOCR })

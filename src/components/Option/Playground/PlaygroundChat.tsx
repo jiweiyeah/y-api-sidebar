@@ -11,11 +11,8 @@ const PlaygroundChatComponent = () => {
     messages,
     streaming,
     regenerateLastMessage,
-    isSearchingInternet,
     editMessage,
-    ttsEnabled,
     onSubmit,
-    actionInfo,
     createChatBranch,
     temporaryChat
   } = useMessageOption()
@@ -71,14 +68,10 @@ const PlaygroundChatComponent = () => {
               index === lastGroupIndex ? regenerateLastMessage : undefined
             }
             isProcessing={streaming && index === lastGroupIndex}
-            isSearchingInternet={
-              index === lastGroupIndex ? isSearchingInternet : false
-            }
             sources={message.sources}
             onEditFormSubmit={handleEditMessage}
             onSourceClick={handleSourceClick}
             onNewBranch={createChatBranch}
-            isTTSEnabled={ttsEnabled}
             generationInfo={message?.generationInfo}
             isStreaming={streaming && index === lastGroupIndex}
             reasoningTimeTaken={message?.reasoning_time_taken}
@@ -87,16 +80,7 @@ const PlaygroundChatComponent = () => {
             modelName={message?.modelName}
             createdAt={message?.createdAt}
             temporaryChat={temporaryChat}
-            messageKind={message?.messageKind}
-            toolCalls={message?.toolCalls}
-            toolCallId={message?.toolCallId}
-            toolName={message?.toolName}
-            toolServerName={message?.toolServerName}
-            toolError={message?.toolError}
-            segments={message.segments}
             onContinue={index === lastGroupIndex ? handleContinue : undefined}
-            documents={message?.documents}
-            actionInfo={index === lastGroupIndex ? actionInfo : null}
           />
         ))}
       </div>

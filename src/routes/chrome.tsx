@@ -2,19 +2,10 @@ import { Route, Routes } from "react-router-dom"
 import OptionIndex from "./option-index"
 import OptionSettings from "./option-settings"
 import OptionModal from "./option-settings-model"
-import OptionPrompt from "./option-settings-prompt"
-import OptionOllamaSettings from "./options-settings-ollama"
-import OptionKnowledgeBase from "./option-settings-knowledge"
 import OptionAbout from "./option-settings-about"
 import SidepanelChat from "./sidepanel-chat"
 import SidepanelSettings from "./sidepanel-settings"
-import OptionRagSettings from "./option-rag"
-import OptionChrome from "./option-settings-chrome"
-import OptionPageAction from "./option-settings-page-action"
-import OptionWebMcp from "./option-settings-webmcp"
 import OptionOpenAI from "./option-settings-openai"
-import OptionMCP from "./option-settings-mcp"
-import OptionMemory from "./option-settings-memory"
 import SidepanelSettingsOpenAI from "./sidepanel-settings-openai"
 import SidepanelSettingsModel from "./sidepanel-settings-model"
 
@@ -24,16 +15,7 @@ export const OptionRoutingChrome = () => {
       <Route path="/" element={<OptionIndex />} />
       <Route path="/settings" element={<OptionSettings />} />
       <Route path="/settings/model" element={<OptionModal />} />
-      <Route path="/settings/prompt" element={<OptionPrompt />} />
-      <Route path="/settings/ollama" element={<OptionOllamaSettings />} />
-      <Route path="/settings/chrome" element={<OptionChrome />} />
-      <Route path="/settings/page-action" element={<OptionPageAction />} />
-      <Route path="/settings/webmcp" element={<OptionWebMcp />} />
       <Route path="/settings/openai" element={<OptionOpenAI />} />
-      <Route path="/settings/mcp" element={<OptionMCP />} />
-      <Route path="/settings/memory" element={<OptionMemory />} />
-      <Route path="/settings/knowledge" element={<OptionKnowledgeBase />} />
-      <Route path="/settings/rag" element={<OptionRagSettings />} />
       <Route path="/settings/about" element={<OptionAbout />} />
     </Routes>
   )

@@ -4,13 +4,13 @@ import {
   saveMessage,
   updateMessage,
   updateLastUsedModel as setLastUsedChatModel,
-  updateLastUsedPrompt as setLastUsedChatSystemPrompt,
   updateChatHistoryCreatedAt
 } from "@/db/dexie/helpers"
-import { ChatDocuments } from "@/models/ChatTypes"
 import { generateTitleInBackground } from "@/services/title"
 import { ChatHistory } from "@/store/option"
 import { updatePageTitle } from "@/utils/update-page-title"
+
+type MessageSource = "copilot" | "web-ui"
 
 export const saveMessageOnError = async ({
   e,
@@ -25,11 +25,7 @@ export const saveMessageOnError = async ({
   setHistoryId,
   isRegenerating,
   message_source = "web-ui",
-  message_type,
-  prompt_content,
-  prompt_id,
-  isContinue,
-  documents = []
+  isContinue
 }: {
   e: any
   setHistory: (history: ChatHistory) => void
@@ -42,15 +38,12 @@ export const saveMessageOnError = async ({
   selectedModel: string
   setHistoryId: (historyId: string) => void
   isRegenerating: boolean
-  message_source?: "copilot" | "web-ui"
-  message_type?: string
-  prompt_id?: string
-  prompt_content?: string
+  message_source?: MessageSource
   isContinue?: boolean
-  documents?: ChatDocuments
 }) => {
   // Use images array if available, otherwise wrap single image
-  const imagesToSave = images && images.length > 0 ? images : (image ? [image] : [])
+  const imagesToSave =
+    images && images.length > 0 ? images : image ? [image] : []
 
   if (
     e?.name === "AbortError" ||
@@ -82,14 +75,11 @@ export const saveMessageOnError = async ({
           role: "user",
           content: userMessage,
           images: imagesToSave,
-          time: 1,
-          message_type,
-          documents
+          time: 1
         })
       }
 
       if (isContinue) {
-        console.log("Saving Last Message")
         const lastMessage = await getLastChatHistory(historyId)
         await updateMessage(historyId, lastMessage.id, botMessage)
       } else {
@@ -100,17 +90,10 @@ export const saveMessageOnError = async ({
           content: botMessage,
           images: [],
           source: [],
-          time: 2,
-          message_type
+          time: 2
         })
       }
       await setLastUsedChatModel(historyId, selectedModel)
-      if (prompt_id || prompt_content) {
-        await setLastUsedChatSystemPrompt(historyId, {
-          prompt_content,
-          prompt_id
-        })
-      }
 
       return historyId
     } else {
@@ -123,9 +106,7 @@ export const saveMessageOnError = async ({
           role: "user",
           content: userMessage,
           images: imagesToSave,
-          time: 1,
-          message_type,
-          documents
+          time: 1
         })
       }
 
@@ -136,17 +117,10 @@ export const saveMessageOnError = async ({
         content: botMessage,
         images: [],
         source: [],
-        time: 2,
-        message_type
+        time: 2
       })
       setHistoryId(newHistoryId.id)
       await setLastUsedChatModel(newHistoryId.id, selectedModel)
-      if (prompt_id || prompt_content) {
-        await setLastUsedChatSystemPrompt(newHistoryId.id, {
-          prompt_content,
-          prompt_id
-        })
-      }
 
       generateTitleInBackground({
         historyId: newHistoryId.id,
@@ -185,13 +159,9 @@ export const saveMessageOnSuccess = async ({
   fullText,
   source,
   message_source = "web-ui",
-  message_type,
   generationInfo,
-  prompt_id,
-  prompt_content,
   reasoning_time_taken = 0,
-  isContinue,
-  documents = []
+  isContinue
 }: {
   historyId: string | null
   setHistoryId: (historyId: string) => void
@@ -202,17 +172,14 @@ export const saveMessageOnSuccess = async ({
   images?: string[]
   fullText: string
   source: any[]
-  message_source?: "copilot" | "web-ui"
-  message_type?: string
+  message_source?: MessageSource
   generationInfo?: any
-  prompt_id?: string
-  prompt_content?: string
   reasoning_time_taken?: number
   isContinue?: boolean
-  documents?: ChatDocuments
 }) => {
   // Use images array if available, otherwise wrap single image
-  const imagesToSave = images && images.length > 0 ? images : (image ? [image] : [])
+  const imagesToSave =
+    images && images.length > 0 ? images : image ? [image] : []
   if (historyId) {
     if (!isRegenerate && !isContinue) {
       await saveMessage({
@@ -222,53 +189,31 @@ export const saveMessageOnSuccess = async ({
         content: message,
         images: imagesToSave,
         time: 1,
-        message_type,
         generationInfo,
-        reasoning_time_taken,
-        documents
+        reasoning_time_taken
       })
     }
 
     if (isContinue) {
-      console.log("Saving Last Message")
       const lastMessage = await getLastChatHistory(historyId)
-      console.log("lastMessage", lastMessage)
-      await updateMessage(historyId, lastMessage.id, fullText)
+      if (lastMessage) {
+        await updateMessage(historyId, lastMessage.id, fullText)
+      }
     } else {
-      await saveMessage(
-        {
-          history_id: historyId,
-          name: selectedModel,
-          role: "assistant",
-          content: fullText,
-          images: [],
-          source,
-          time: 2,
-          message_type,
-          generationInfo,
-          reasoning_time_taken
-        }
-        // historyId,
-        // selectedModel!,
-        // "assistant",
-        // fullText,
-        // [],
-        // source,
-        // 2,
-        // message_type,
-        // generationInfo,
-        // reasoning_time_taken
-      )
-    }
-
-    await setLastUsedChatModel(historyId, selectedModel!)
-    if (prompt_id || prompt_content) {
-      await setLastUsedChatSystemPrompt(historyId, {
-        prompt_content,
-        prompt_id
+      await saveMessage({
+        history_id: historyId,
+        name: selectedModel,
+        role: "assistant",
+        content: fullText,
+        images: [],
+        source,
+        time: 2,
+        generationInfo,
+        reasoning_time_taken
       })
     }
 
+    await setLastUsedChatModel(historyId, selectedModel!)
     await updateChatHistoryCreatedAt(historyId)
 
     return historyId
@@ -276,63 +221,30 @@ export const saveMessageOnSuccess = async ({
     const newHistoryId = await saveHistory(message, false, message_source)
     updatePageTitle(newHistoryId.title)
 
-    await saveMessage(
-      {
-        history_id: newHistoryId.id,
-        name: selectedModel,
-        role: "user",
-        content: message,
-        images: imagesToSave,
-        time: 1,
-        message_type,
-        generationInfo,
-        reasoning_time_taken,
-        documents
-      }
-      // newHistoryId.id,
-      // selectedModel,
-      // "user",
-      // message,
-      // [image],
-      // [],
-      // 1,
-      // message_type,
-      // generationInfo,
-      // reasoning_time_taken
-    )
+    await saveMessage({
+      history_id: newHistoryId.id,
+      name: selectedModel,
+      role: "user",
+      content: message,
+      images: imagesToSave,
+      time: 1,
+      generationInfo,
+      reasoning_time_taken
+    })
 
-    await saveMessage(
-      {
-        history_id: newHistoryId.id,
-        name: selectedModel,
-        role: "assistant",
-        content: fullText,
-        images: [],
-        source,
-        time: 2,
-        message_type,
-        generationInfo,
-        reasoning_time_taken
-      }
-      // newHistoryId.id,
-      // selectedModel!,
-      // "assistant",
-      // fullText,
-      // [],
-      // source,
-      // 2,
-      // message_type,
-      // generationInfo,
-      // reasoning_time_taken
-    )
+    await saveMessage({
+      history_id: newHistoryId.id,
+      name: selectedModel,
+      role: "assistant",
+      content: fullText,
+      images: [],
+      source,
+      time: 2,
+      generationInfo,
+      reasoning_time_taken
+    })
     setHistoryId(newHistoryId.id)
     await setLastUsedChatModel(newHistoryId.id, selectedModel!)
-    if (prompt_id || prompt_content) {
-      await setLastUsedChatSystemPrompt(newHistoryId.id, {
-        prompt_content,
-        prompt_id
-      })
-    }
 
     generateTitleInBackground({
       historyId: newHistoryId.id,

@@ -1,61 +1,44 @@
 import {
   formatToChatHistory,
   formatToMessage,
-  getRecentChatFromCopilot,
-  getPromptById
+  getRecentChatFromCopilot
 } from "@/db/dexie/helpers"
-import useBackgroundMessage from "@/hooks/useBackgroundMessage"
-import { useMigration } from "@/hooks/useMigration"
 import { useSmartScroll } from "@/hooks/useSmartScroll"
 import {
   useChatShortcuts,
-  useSidebarShortcuts,
-  useChatModeShortcuts
+  useSidebarShortcuts
 } from "@/hooks/keyboard/useKeyboardShortcuts"
 import { copilotResumeLastChat } from "@/services/app"
 import { Storage } from "@plasmohq/storage"
 import { useStorage } from "@plasmohq/storage/hook"
-import { notification } from "antd"
 import { ChevronDown } from "lucide-react"
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { SidePanelBody } from "~/components/Sidepanel/Chat/body"
 import { SidepanelForm } from "~/components/Sidepanel/Chat/form"
 import { SidepanelHeader } from "~/components/Sidepanel/Chat/header"
 import { useMessage } from "~/hooks/useMessage"
-import { useStoreChatModelSettings } from "@/store/model"
 
 const SidepanelChat = () => {
   const drop = React.useRef<HTMLDivElement>(null)
   const [dropedFile, setDropedFile] = React.useState<File | undefined>()
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
-  const { t } = useTranslation(["playground"])
   const [dropState, setDropState] = React.useState<
     "idle" | "dragging" | "error"
   >("idle")
 
-  const [defaultCopilotPrompt] = useStorage("defaultCopilotPrompt", undefined)
   const [hideChatScrollbar] = useStorage("hideChatScrollbar", false)
 
-  useMigration()
   const {
     streaming,
-    onSubmit,
     messages,
     setHistory,
     setHistoryId,
     historyId,
     setMessages,
-    selectedModel,
-    defaultChatWithWebsite,
-    chatMode,
-    setChatMode,
     temporaryChat,
     setTemporaryChat,
     sidepanelTemporaryChat,
-    clearChat,
-    setSelectedSystemPrompt,
-    setSelectedQuickPrompt
+    clearChat
   } = useMessage()
   const { containerRef, isAutoScrollToBottom, autoScrollToBottom } =
     useSmartScroll(messages, streaming, 100, historyId)
@@ -64,13 +47,8 @@ const SidepanelChat = () => {
     setSidebarOpen((prev) => !prev)
   }
 
-  const toggleChatMode = () => {
-    setChatMode(chatMode === "rag" ? "normal" : "rag")
-  }
-
   useChatShortcuts(clearChat, true)
   useSidebarShortcuts(toggleSidebar, true)
-  useChatModeShortcuts(toggleChatMode, true)
 
   const [chatBackgroundImage] = useStorage({
     key: "chatBackgroundImage",
@@ -78,7 +56,6 @@ const SidepanelChat = () => {
       area: "local"
     })
   })
-  const bgMsg = useBackgroundMessage()
 
   const setRecentMessagesOnLoad = async () => {
     const isEnabled = await copilotResumeLastChat()
@@ -153,62 +130,14 @@ const SidepanelChat = () => {
   }, [])
 
   React.useEffect(() => {
-    const loadDefaultPrompt = async () => {
-      if (defaultCopilotPrompt && messages.length === 0) {
-        try {
-          const prompt = await getPromptById(defaultCopilotPrompt)
-          console.log("Loaded default copilot prompt:", prompt)
-          if (prompt.is_system) {
-            setSelectedSystemPrompt(prompt.id)
-          } else {
-            setSelectedSystemPrompt(undefined)
-            setSelectedQuickPrompt(prompt!.content)
-          }
-        } catch (error) {
-          console.error("Failed to load default prompt:", error)
-        }
-      }
-    }
-
-    loadDefaultPrompt()
-  }, [defaultCopilotPrompt])
-
-  React.useEffect(() => {
     setRecentMessagesOnLoad()
   }, [])
 
   React.useEffect(() => {
-    if (defaultChatWithWebsite) {
-      setChatMode("rag")
-    }
     if (sidepanelTemporaryChat) {
       setTemporaryChat(true)
     }
-  }, [defaultChatWithWebsite, sidepanelTemporaryChat])
-
-  React.useEffect(() => {
-    if (bgMsg && !streaming) {
-      if (selectedModel) {
-        if (bgMsg.type === "yt_summarize") {
-          onSubmit({
-            message: bgMsg.text,
-            image: "",
-            chatType: "youtube"
-          })
-        } else {
-          onSubmit({
-            message: bgMsg.text,
-            messageType: bgMsg.type,
-            image: ""
-          })
-        }
-      } else {
-        notification.error({
-          message: t("formError.noModel")
-        })
-      }
-    }
-  }, [bgMsg])
+  }, [sidepanelTemporaryChat])
 
   return (
     <div className="flex h-full w-full">
@@ -244,7 +173,9 @@ const SidepanelChat = () => {
 
           <div
             ref={containerRef}
-            className={`${hideChatScrollbar ? "no-scrollbar" : "custom-scrollbar"} flex h-full w-full flex-col items-center overflow-x-hidden overflow-y-auto px-5 relative z-10`}>
+            className={`${
+              hideChatScrollbar ? "no-scrollbar" : "custom-scrollbar"
+            } flex h-full w-full flex-col items-center overflow-x-hidden overflow-y-auto px-5 relative z-10`}>
             <SidePanelBody />
           </div>
 
@@ -253,6 +184,7 @@ const SidepanelChat = () => {
               <div className="fixed bottom-32 z-20 left-0 right-0 flex justify-center">
                 <button
                   onClick={() => autoScrollToBottom()}
+                  aria-label="Scroll to latest message"
                   className="bg-gray-50 shadow border border-gray-200 dark:border-none dark:bg-white/20 p-1.5 rounded-full pointer-events-auto hover:bg-gray-100 dark:hover:bg-white/30 transition-colors">
                   <ChevronDown className="size-4 text-gray-600 dark:text-gray-300" />
                 </button>

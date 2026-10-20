@@ -2,7 +2,6 @@ import React from "react"
 import { PlaygroundMessage } from "~/components/Common/Playground/Message"
 import { useMessage } from "~/hooks/useMessage"
 import { EmptySidePanel } from "../Chat/empty"
-import { useWebUI } from "@/store/webui"
 import { MessageSourcePopup } from "@/components/Common/Playground/MessageSourcePopup"
 import { usePlaygroundMessageGroups } from "@/components/Common/Playground/message-groups"
 
@@ -12,14 +11,12 @@ const SidePanelBodyComponent = () => {
     streaming,
     regenerateLastMessage,
     editMessage,
-    isSearchingInternet, 
     createChatBranch,
     temporaryChat,
-    actionInfo
+    onSubmit
   } = useMessage()
   const [isSourceOpen, setIsSourceOpen] = React.useState(false)
   const [source, setSource] = React.useState<any>(null)
-  const { ttsEnabled } = useWebUI()
   const messageGroups = usePlaygroundMessageGroups(messages)
   const lastGroupIndex = messageGroups.length - 1
 
@@ -40,6 +37,14 @@ const SidePanelBodyComponent = () => {
     setIsSourceOpen(true)
   }, [])
 
+  const handleContinue = React.useCallback(() => {
+    onSubmit({
+      image: "",
+      message: "",
+      isContinue: true
+    })
+  }, [onSubmit])
+
   return (
     <>
       <div className="relative flex w-full flex-col items-center pt-16 pb-4">
@@ -56,16 +61,11 @@ const SidePanelBodyComponent = () => {
             onRengerate={
               index === lastGroupIndex ? regenerateLastMessage : undefined
             }
-            message_type={message.messageType}
             isProcessing={streaming && index === lastGroupIndex}
-            isSearchingInternet={
-              index === lastGroupIndex ? isSearchingInternet : false
-            }
             sources={message.sources}
             onEditFormSubmit={handleEditMessage}
             onNewBranch={createChatBranch}
             onSourceClick={handleSourceClick}
-            isTTSEnabled={ttsEnabled}
             generationInfo={message?.generationInfo}
             isStreaming={streaming && index === lastGroupIndex}
             reasoningTimeTaken={message?.reasoning_time_taken}
@@ -73,14 +73,7 @@ const SidePanelBodyComponent = () => {
             modelName={message?.modelName}
             createdAt={message?.createdAt}
             temporaryChat={temporaryChat}
-            actionInfo={index === lastGroupIndex ? actionInfo : null}
-            messageKind={message?.messageKind}
-            toolCalls={message?.toolCalls}
-            toolCallId={message?.toolCallId}
-            toolName={message?.toolName}
-            toolServerName={message?.toolServerName}
-            toolError={message?.toolError}
-            segments={message.segments}
+            onContinue={handleContinue}
           />
         ))}
       </div>

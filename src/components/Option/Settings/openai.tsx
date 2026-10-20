@@ -1,696 +1,228 @@
-/**
- * The `OpenAIApp` component is the main entry point for the OpenAI configuration management functionality in the application.
- * It provides a user interface for adding, editing, deleting, and refetching OpenAI configurations.
- * The component uses React Query to manage the state and perform CRUD operations on the OpenAI configurations.
- * It also includes a modal for fetching the available models from the selected OpenAI configuration.
- */
-import {
-  Form,
-  Input,
-  Modal,
-  Table,
-  message,
-  Tooltip,
-  Select,
-  Switch,
-  notification,
-  Upload
-} from "antd"
+import { Form, Input, Modal, message, Tooltip, Skeleton } from "antd"
 import { useState } from "react"
-import { useWatch } from "antd/es/form/Form"
 import { useTranslation } from "react-i18next"
-import {
-  addOpenAICofig,
-  getAllOpenAIConfig,
-  deleteOpenAIConfig,
-  updateOpenAIConfig
-} from "@/db/dexie/openai"
+import { getYApiProvider, setYApiApiKey } from "@/db/dexie/openai"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { Pencil, Trash2, DownloadIcon, Trash2Icon, UploadIcon } from "lucide-react"
+import { Settings, Sparkles } from "lucide-react"
 import { OpenAIFetchModel } from "./openai-fetch-model"
-import { OAI_API_PROVIDERS } from "@/utils/oai-api-providers"
-import { ProviderIcons } from "@/components/Common/ProviderIcon"
-import { buildVertexBaseUrl } from "@/libs/vertex-auth"
-const noPopupProvider = ["lmstudio", "llamafile", "ollama2", "llamacpp", "vllm", "llmman"]
+import { Y_API_PROVIDER, Y_API_PROVIDER_ID } from "@/utils/oai-api-providers"
+import { getAllCustomModels, deleteModel } from "@/db/dexie/models"
 import { isFireFoxPrivateMode } from "@/utils/is-private-mode"
-import { setProviderState, getAllProviderStates } from "@/db/dexie/providerState"
-import { useState as useReactState, useEffect } from "react"
 
+/**
+ * Y-API is the only provider. There is nothing to add, edit or delete: the
+ * base URL is fixed and the user only supplies an API key. Models are pulled
+ * from the provider's `/models` endpoint and stored locally.
+ */
 export const OpenAIApp = () => {
-  const { t } = useTranslation(["openai", "settings"])
-  const [open, setOpen] = useState(false)
-  const [editingConfig, setEditingConfig] = useState(null)
+  const { t } = useTranslation(["openai", "settings", "common"])
   const queryClient = useQueryClient()
   const [form] = Form.useForm()
-  const [openaiId, setOpenaiId] = useState<string | null>(null)
   const [openModelModal, setOpenModelModal] = useState(false)
-  const [provider, setProvider] = useState("custom")
-  const [providerStates, setProviderStates] = useReactState<Record<string, boolean>>({})
 
-  const { data: configs, isLoading } = useQuery({
-    queryKey: ["openAIConfigs"],
-    queryFn: getAllOpenAIConfig
+  const { data: provider, isLoading } = useQuery({
+    queryKey: ["yApiProvider"],
+    queryFn: getYApiProvider
   })
 
-  useEffect(() => {
-    const loadProviderStates = async () => {
-      const states = await getAllProviderStates()
-      setProviderStates(states)
-    }
-    loadProviderStates()
-  }, [])
-
-  const handleToggleProvider = async (providerId: string, isEnabled: boolean) => {
-    await setProviderState(providerId, isEnabled)
-    const states = await getAllProviderStates()
-    setProviderStates(states)
-    // Invalidate model queries to refresh the list
-    queryClient.invalidateQueries({
-      queryKey: ["fetchModel"]
-    })
-    queryClient.invalidateQueries({
-      queryKey: ["fetchAllModels"]
-    })
-  }
-
-  const addMutation = useMutation({
-    mutationFn: addOpenAICofig,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: ["openAIConfigs"]
-      })
-      setOpen(false)
-      message.success(t("addSuccess"))
-      if (!noPopupProvider.includes(provider)) {
-        setOpenaiId(data)
-        setOpenModelModal(true)
-      }
-      form.resetFields()
-      setProvider("custom")
-    }
+  const { data: models = [], isLoading: modelsLoading } = useQuery({
+    queryKey: ["fetchCustomModels"],
+    queryFn: getAllCustomModels
   })
 
-  const updateMutation = useMutation({
-    mutationFn: updateOpenAIConfig,
+  const saveMutation = useMutation({
+    mutationFn: setYApiApiKey,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["openAIConfigs"]
-      })
-      setOpen(false)
-      form.resetFields()
-      setEditingConfig(null)
-      message.success(t("updateSuccess"))
-    }
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteOpenAIConfig,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["openAIConfigs"]
-      })
-      message.success(t("deleteSuccess"))
-    }
-  })
-
-  const handleSubmit = (values: {
-    id?: string
-    name: string
-    baseUrl: string
-    apiKey: string
-    fix_cors?: boolean
-    headers?: { key: string; value: string }[]
-    vertexProjectId?: string
-    vertexLocation?: string
-    serviceAccount?: string
-  }) => {
-    const activeProvider = editingConfig ? editingConfig.provider : provider
-
-    if (activeProvider === "vertex") {
-      const payload = {
-        name: values.name,
-        baseUrl: buildVertexBaseUrl(
-          values.vertexProjectId || "",
-          values.vertexLocation || "global"
-        ),
-        apiKey: values.serviceAccount || "",
-        headers: values.headers,
-        vertexProjectId: values.vertexProjectId,
-        vertexLocation: values.vertexLocation
-      }
-      if (editingConfig) {
-        updateMutation.mutate({ id: editingConfig.id, ...payload })
-      } else {
-        addMutation.mutate({ ...payload, provider: "vertex" })
-      }
-      return
-    }
-
-    if (editingConfig) {
-      updateMutation.mutate({
-        id: editingConfig.id,
-        ...values
-      })
-    } else {
-      addMutation.mutate({
-        ...values,
-        provider
-      })
-    }
-  }
-
-  const handleEdit = (record: any) => {
-    setEditingConfig({
-      ...record,
-      headers: record?.headers || []
-    })
-    setProvider(record?.provider || "custom")
-    form.setFieldsValue({
-      ...record,
-      headers: record?.headers || [],
-      fix_cors: record?.fix_cors || false,
-      ...(record?.provider === "vertex" && {
-        serviceAccount: record?.apiKey,
-        vertexProjectId: record?.vertexProjectId,
-        vertexLocation: record?.vertexLocation || "global"
-      })
-    })
-    setOpen(true)
-  }
-
-  const handleDelete = (id: string) => {
-    deleteMutation.mutate(id)
-  }
-
-  const handleServiceAccountUpload = (file: File) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const text = (e.target?.result as string) ?? ""
-      let parsed: any
-      try {
-        parsed = JSON.parse(text)
-      } catch {
-        message.error(
-          t("modal.vertex.serviceAccount.invalid", {
-            defaultValue: "That file is not valid JSON."
-          })
-        )
-        return
-      }
-      form.setFieldsValue({ serviceAccount: text })
-      // Auto-fill helpers from the key file so users don't have to retype.
-      const updates: Record<string, string> = {}
-      if (parsed?.project_id && !form.getFieldValue("vertexProjectId")) {
-        updates.vertexProjectId = parsed.project_id
-      }
-      if (Object.keys(updates).length) {
-        form.setFieldsValue(updates)
-      }
-      message.success(
-        t("modal.vertex.serviceAccount.uploaded", {
-          defaultValue: "Service account loaded from file."
-        })
+      message.success(t("openai:addSuccess"))
+      queryClient.invalidateQueries({ queryKey: ["yApiProvider"] })
+      queryClient.invalidateQueries({ queryKey: ["getAllModelsForSelect"] })
+      queryClient.invalidateQueries({ queryKey: ["providerModels"] })
+    },
+    onError: (error) => {
+      message.error(
+        error instanceof Error ? error.message : t("common:somethingWentWrong")
       )
     }
-    reader.readAsText(file)
-    // Returning false stops antd from trying to upload the file anywhere.
-    return false
+  })
+
+  const deleteModelMutation = useMutation({
+    mutationFn: deleteModel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["fetchCustomModels"] })
+      queryClient.invalidateQueries({ queryKey: ["getAllModelsForSelect"] })
+    }
+  })
+
+  const handleSave = async () => {
+    const values = await form.validateFields()
+    saveMutation.mutate(values.apiKey)
   }
 
-  // Sync the provider dropdown from a hand-typed base URL. This has to run in
-  // an effect: calling setProvider during render re-enters this component and
-  // React aborts with "Too many re-renders" as soon as the typed URL matches
-  // a preset.
-  const baseUrl = useWatch("baseUrl", form)
-  useEffect(() => {
-    if (editingConfig || !baseUrl || provider !== "custom") return
-    const matchedProvider = OAI_API_PROVIDERS.find(
-      (p) => p.baseUrl.toLowerCase() === baseUrl.toLowerCase()
-    )
-    if (matchedProvider) setProvider(matchedProvider.value)
-  }, [baseUrl, editingConfig, provider])
+  if (isLoading || !provider) {
+    return <Skeleton active paragraph={{ rows: 6 }} />
+  }
 
-  const apiKeyUrl = OAI_API_PROVIDERS.find(
-    (p) => p.value === provider
-  )?.apiKeyUrl
+  const showKeyNotice = !provider.apiKey
 
   return (
-    <div className="w-full max-w-full overflow-hidden">
-      <div className="px-2 sm:px-0">
-        <div className="mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex-1">
-              <h2 className="text-base font-semibold leading-7 text-gray-900 dark:text-white">
-                {t("heading")}
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
-                {t("subheading")}
-              </p>
-            </div>
-            <div className="flex-shrink-0">
-              <button
-                onClick={() => {
-                  if (isFireFoxPrivateMode) {
-                    notification.error({
-                      message: "Page Assist can't save data",
-                      description:
-                        "Firefox Private Mode does not support saving data to IndexedDB. Please add OpenAI configurations from a normal window."
-                    })
-                    return
-                  }
-                  form.resetFields()
-                  setEditingConfig(null)
-                  // The only shipped provider is Y-API, and it is already the
-                  // default selection, so onSelect never fires to fill the
-                  // form. Prefill it here instead of making the user retype it.
-                  const preset = OAI_API_PROVIDERS[0]
-                  form.setFieldsValue({
-                    baseUrl: preset?.baseUrl,
-                    name: preset?.label
-                  })
-                  setProvider(preset?.value ?? "custom")
-                  setOpen(true)
-                }}
-                className="inline-flex items-center justify-center rounded-md border border-transparent bg-black px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-white dark:text-gray-800 dark:hover:bg-gray-100 dark:focus:ring-gray-500 dark:focus:ring-offset-gray-100 disabled:opacity-50 w-full sm:w-auto">
-                {t("addBtn")}
-              </button>
-            </div>
+    <div>
+      <div className="mb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {t("openai:heading")}
+            </h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {t("openai:subheading")}
+            </p>
           </div>
-          <div className="border border-b border-gray-200 dark:border-gray-600 mt-4 mb-0"></div>
+          <a
+            href={Y_API_PROVIDER.apiKeyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-nowrap text-sm text-blue-600 hover:underline dark:text-blue-400">
+            {t("openai:modal.apiKey.create")}
+          </a>
         </div>
+      </div>
 
-        <Table
-          columns={[
-            {
-              title: t("table.name"),
-              dataIndex: "name",
-              key: "name",
-              ellipsis: true
-            },
-            {
-              title: t("table.baseUrl"),
-              dataIndex: "baseUrl",
-              key: "baseUrl",
-              render: (text) => (
-                <span className="truncate block" title={text}>
-                  {text}
-                </span>
-              )
-            },
-            {
-              title: t("table.actions"),
-              key: "actions",
-              render: (_, record) => {
-                const isEnabled = providerStates[record.id] ?? true
-                return (
-                  <div className="flex gap-2 sm:gap-4 justify-start items-center">
-                    <Tooltip title={isEnabled ? "Disable provider" : "Enable provider"}>
-                      <Switch
-                        checked={isEnabled}
-                        size="small"
-                        disabled={isFireFoxPrivateMode}
-                        onChange={(checked) => {
-                          handleToggleProvider(record.id, checked)
-                        }}
-                      />
-                    </Tooltip>
-                    <Tooltip title={t("edit")}>
-                      <button
-                        className="text-gray-700 dark:text-gray-400 disabled:opacity-50 p-1"
-                        disabled={isFireFoxPrivateMode}
-                        onClick={() => handleEdit(record)}>
-                        <Pencil className="size-4" />
-                      </button>
-                    </Tooltip>
+      <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-[#262626]">
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ apiKey: provider.apiKey }}
+          onFinish={handleSave}>
+          <Form.Item label={t("openai:table.name")}>
+            <Input value={Y_API_PROVIDER.name} disabled />
+          </Form.Item>
 
-                    <Tooltip
-                      title={
-                        !noPopupProvider.includes(record.provider)
-                          ? t("newModel")
-                          : t("noNewModel")
-                      }>
-                      <button
-                        className="text-gray-700 dark:text-gray-400 disabled:opacity-50 p-1"
-                        onClick={() => {
-                          setOpenModelModal(true)
-                          setOpenaiId(record.id)
-                        }}
-                        disabled={
-                          !record.id ||
-                          noPopupProvider.includes(record.provider) ||
-                          isFireFoxPrivateMode
-                        }>
-                        <DownloadIcon className="size-4" />
-                      </button>
-                    </Tooltip>
+          <Form.Item label={t("openai:table.baseUrl")}>
+            <Input value={Y_API_PROVIDER.baseUrl} disabled />
+          </Form.Item>
 
-                    <Tooltip title={t("delete")}>
-                      <button
-                        className="text-red-500 dark:text-red-400 disabled:opacity-50 p-1"
-                        disabled={isFireFoxPrivateMode}
-                        onClick={() => {
-                          // add confirmation here
-                          if (
-                            confirm(
-                              t("modal.deleteConfirm", {
-                                name: record.name
-                              })
-                            )
-                          ) {
-                            handleDelete(record.id)
-                          }
-                        }}>
-                        <Trash2 className="size-4" />
-                      </button>
-                    </Tooltip>
-                  </div>
-                )
+          <Form.Item
+            label={t("openai:modal.apiKey.label")}
+            name="apiKey"
+            rules={[
+              {
+                required: true,
+                message: t("openai:modal.apiKey.required")
               }
-            }
-          ]}
-          dataSource={configs}
-          loading={isLoading}
-          rowKey="id"
-          bordered
-          scroll={{ x: 600 }}
-          className="[&_.ant-table]:text-sm"
-        />
-
-        <Modal
-          open={open}
-          title={editingConfig ? t("modal.titleEdit") : t("modal.titleAdd")}
-          onCancel={() => {
-            form.resetFields()
-            setOpen(false)
-            setEditingConfig(null)
-            setProvider("custom")
-          }}
-          centered
-          width={520}
-          style={{ maxWidth: "calc(100vw - 2rem)" }}
-          styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
-          footer={null}>
-          {!editingConfig && (
-            <Select
-              value={provider}
-              onSelect={(e) => {
-                const value = OAI_API_PROVIDERS.find((item) => item.value === e)
-                form.setFieldsValue({
-                  baseUrl: value?.baseUrl,
-                  name: value?.label
-                })
-                setProvider(e)
-              }}
-              filterOption={(input, option) => {
-                //@ts-ignore
-                return (
-                  option?.label?.props["data-title"]
-                    ?.toLowerCase()
-                    ?.indexOf(input.toLowerCase()) >= 0
-                )
-              }}
-              showSearch
-              className="w-full !mb-4"
-              size="large"
-              options={OAI_API_PROVIDERS.map((e) => ({
-                value: e.value,
-                label: (
-                  <span
-                    key={e.value}
-                    data-title={e.label}
-                    className="flex flex-row gap-3 items-center">
-                    <ProviderIcons
-                      provider={e.value}
-                      className="size-5 flex-shrink-0"
-                    />
-                    <span className="line-clamp-2 text-sm">{e.label}</span>
-                  </span>
-                )
-              }))}
+            ]}>
+            <Input.Password
+              placeholder={t("openai:modal.apiKey.placeholder")}
+              autoComplete="off"
             />
-          )}
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            initialValues={{ ...editingConfig }}>
-            <Form.Item
-              name="name"
-              label={t("modal.name.label")}
-              rules={[
-                {
-                  required: true,
-                  message: t("modal.name.required")
-                }
-              ]}>
-              <Input size="large" placeholder={t("modal.name.placeholder")} />
-            </Form.Item>
+          </Form.Item>
 
-            {provider === "vertex" ? (
-              <>
-                <Form.Item
-                  name="vertexProjectId"
-                  label={t("modal.vertex.projectId.label", {
-                    defaultValue: "Google Cloud Project ID"
-                  })}
-                  rules={[
-                    {
-                      required: true,
-                      message: t("modal.vertex.projectId.required", {
-                        defaultValue: "Please enter your Google Cloud project ID"
-                      })
-                    }
-                  ]}>
-                  <Input
-                    size="large"
-                    placeholder={t("modal.vertex.projectId.placeholder", {
-                      defaultValue: "my-gcp-project-123456"
-                    })}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="vertexLocation"
-                  label={t("modal.vertex.location.label", {
-                    defaultValue: "Location / Region"
-                  })}
-                  initialValue="global"
-                  rules={[
-                    {
-                      required: true,
-                      message: t("modal.vertex.location.required", {
-                        defaultValue: "Please select a location"
-                      })
-                    }
-                  ]}>
-                  <Select
-                    size="large"
-                    showSearch
-                    placeholder="global"
-                    options={[
-                      { value: "global", label: "global" },
-                      { value: "us-central1", label: "us-central1" },
-                      { value: "us-east1", label: "us-east1" },
-                      { value: "us-east4", label: "us-east4" },
-                      { value: "us-west1", label: "us-west1" },
-                      { value: "us-west4", label: "us-west4" },
-                      { value: "europe-west1", label: "europe-west1" },
-                      { value: "europe-west4", label: "europe-west4" },
-                      { value: "europe-west9", label: "europe-west9" },
-                      { value: "asia-northeast1", label: "asia-northeast1" },
-                      { value: "asia-southeast1", label: "asia-southeast1" }
-                    ]}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="serviceAccount"
-                  label={
-                    <div className="flex w-full items-center justify-between gap-2">
-                      <span>
-                        {t("modal.vertex.serviceAccount.label", {
-                          defaultValue: "Service Account JSON"
-                        })}
-                      </span>
-                      <Upload
-                        accept=".json,application/json"
-                        showUploadList={false}
-                        maxCount={1}
-                        beforeUpload={handleServiceAccountUpload}>
-                        <span className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800">
-                          <UploadIcon className="size-3" />
-                          {t("modal.vertex.serviceAccount.upload", {
-                            defaultValue: "Upload JSON file"
-                          })}
-                        </span>
-                      </Upload>
-                    </div>
-                  }
-                  help={t("modal.vertex.serviceAccount.help", {
-                    defaultValue:
-                      "Upload your service-account key file, or paste its JSON here. It is stored locally and used to mint short-lived access tokens in your browser. You can also paste a raw access token instead."
-                  })}
-                  rules={[
-                    {
-                      required: true,
-                      message: t("modal.vertex.serviceAccount.required", {
-                        defaultValue:
-                          "Please paste your service account JSON or an access token"
-                      })
-                    }
-                  ]}>
-                  <Input.TextArea
-                    rows={6}
-                    placeholder='{ "type": "service_account", "project_id": "...", "private_key": "...", "client_email": "..." }'
-                  />
-                </Form.Item>
-              </>
-            ) : (
-              <>
-                <Form.Item
-                  name="baseUrl"
-                  label={t("modal.baseUrl.label")}
-                  help={t("modal.baseUrl.help")}
-                  rules={[
-                    {
-                      required: true,
-                      message: t("modal.baseUrl.required")
-                    }
-                  ]}>
-                  <Input
-                    size="large"
-                    placeholder={t("modal.baseUrl.placeholder")}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="apiKey"
-                  label={t("modal.apiKey.label")}
-                  extra={
-                    apiKeyUrl && (
-                      <a
-                        href={apiKeyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline">
-                        {t("modal.apiKey.create", {
-                          defaultValue: "Create API Key"
-                        })}
-                      </a>
-                    )
-                  }>
-                  <Input.Password
-                    size="large"
-                    placeholder={t("modal.apiKey.placeholder")}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  name="fix_cors"
-                  label={t("modal.fixCors.label", {
-                    defaultValue: "Fix CORS issues"
-                  })}
-                  valuePropName="checked">
-                  <Switch />
-                </Form.Item>
-              </>
-            )}
-
-            <Form.List name="headers">
-              {(fields, { add, remove }) => (
-                <div className="flex flex-col">
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-sm font-semibold">
-                      {t(
-                        "settings:ollamaSettings.settings.advanced.headers.label"
-                      )}
-                    </h3>
-                    <button
-                      type="button"
-                      className="dark:bg-white dark:text-black text-white bg-black px-2 py-1 text-xs rounded-md"
-                      onClick={() => {
-                        add()
-                      }}>
-                      {t(
-                        "settings:ollamaSettings.settings.advanced.headers.add"
-                      )}
-                    </button>
-                  </div>
-                  {fields.map((field, index) => (
-                    <div
-                      key={field.key}
-                      className="flex flex-col sm:flex-row items-start sm:items-end gap-2 mb-3">
-                      <div className="flex-grow w-full space-y-2 sm:space-y-0 sm:space-x-2 sm:flex">
-                        <Form.Item
-                          label={t(
-                            "settings:ollamaSettings.settings.advanced.headers.key.label"
-                          )}
-                          name={[field.name, "key"]}
-                          className="flex-1 mb-0 w-full">
-                          <Input
-                            className="w-full"
-                            placeholder={t(
-                              "settings:ollamaSettings.settings.advanced.headers.key.placeholder"
-                            )}
-                          />
-                        </Form.Item>
-                        <Form.Item
-                          label={t(
-                            "settings:ollamaSettings.settings.advanced.headers.value.label"
-                          )}
-                          name={[field.name, "value"]}
-                          className="flex-1 mb-0 w-full">
-                          <Input
-                            className="w-full"
-                            placeholder={t(
-                              "settings:ollamaSettings.settings.advanced.headers.value.placeholder"
-                            )}
-                          />
-                        </Form.Item>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          remove(field.name)
-                        }}
-                        className="shrink-0 p-1 text-red-500 dark:text-red-400 sm:ml-2 self-start sm:self-auto">
-                        <Trash2Icon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+          {showKeyNotice && (
+            <p className="mb-4 text-xs text-amber-600 dark:text-amber-400">
+              {t(
+                "openai:modal.apiKey.help",
+                "Paste the key you created on the Y-API site. It is stored locally in this browser."
               )}
-            </Form.List>
-            {provider === "lmstudio" && (
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-4 p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                {t("modal.tipLMStudio")}
-              </div>
-            )}
+            </p>
+          )}
+
+          <div className="flex items-center gap-3">
             <button
               type="submit"
-              className="inline-flex justify-center w-full text-center mt-4 items-center rounded-md border border-transparent bg-black px-2 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-white dark:text-gray-800 dark:hover:bg-gray-100 dark:focus:ring-gray-500 dark:focus:ring-offset-gray-100 disabled:opacity-50">
-              {editingConfig ? t("modal.update") : t("modal.submit")}
+              disabled={saveMutation.isPending}
+              className="inline-flex items-center rounded-md border border-transparent bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-white dark:text-gray-800 dark:hover:bg-gray-100">
+              {saveMutation.isPending ? t("openai:saving") : t("openai:save")}
             </button>
-          </Form>
-        </Modal>
 
-        <Modal
-          open={openModelModal}
-          title={t("modal.model.title")}
-          footer={null}
-          centered
-          width={520}
-          style={{ maxWidth: "calc(100vw - 2rem)" }}
-          styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
-          onCancel={() => setOpenModelModal(false)}>
-          {openaiId ? (
-            <OpenAIFetchModel
-              openaiId={openaiId}
-              setOpenModelModal={setOpenModelModal}
-            />
-          ) : null}
-        </Modal>
+            <button
+              type="button"
+              onClick={() => setOpenModelModal(true)}
+              disabled={!provider.apiKey}
+              className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-[#333]">
+              <Sparkles className="size-4" />
+              {t("openai:newModel")}
+            </button>
+          </div>
+        </Form>
       </div>
+
+      <div className="mt-8">
+        <h3 className="mb-3 text-base font-medium text-gray-900 dark:text-gray-100">
+          {t("openai:manageModels.columns.name")}
+        </h3>
+
+        {modelsLoading && <Skeleton active paragraph={{ rows: 4 }} />}
+
+        {!modelsLoading && models.length === 0 && (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {t("openai:noModelFound")}
+          </p>
+        )}
+
+        {!modelsLoading && models.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead>
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {t("openai:manageModels.columns.nickname")}
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {t("openai:manageModels.columns.model_id")}
+                  </th>
+                  <th className="px-3 py-2 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    {t("openai:manageModels.columns.actions")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {models.map((model) => (
+                  <tr key={model.id}>
+                    <td className="px-3 py-2 text-sm text-gray-800 dark:text-gray-200">
+                      <div className="flex items-center gap-2">
+                        <Settings className="size-3 text-gray-400" />
+                        {model.nickname}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
+                      {model.model_id}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <Tooltip title={t("openai:manageModels.tooltip.delete")}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (
+                              window.confirm(t("openai:manageModels.confirm.delete"))
+                            ) {
+                              deleteModelMutation.mutate(model.id)
+                            }
+                          }}
+                          disabled={isFireFoxPrivateMode}
+                          className="text-sm text-red-500 hover:underline disabled:opacity-50 dark:text-red-400">
+                          {t("openai:delete")}
+                        </button>
+                      </Tooltip>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <Modal
+        open={openModelModal}
+        onCancel={() => setOpenModelModal(false)}
+        footer={null}
+        title={t("openai:modal.model.title")}
+        width={600}>
+        {openModelModal && (
+          <OpenAIFetchModel
+            openaiId={Y_API_PROVIDER_ID}
+            setOpenModelModal={setOpenModelModal}
+          />
+        )}
+      </Modal>
     </div>
   )
 }

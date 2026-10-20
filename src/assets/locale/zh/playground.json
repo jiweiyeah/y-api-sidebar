@@ -1,10 +1,4 @@
 {
-  "ollamaState": {
-    "searching": "正在搜索您的Ollama 🦙",
-    "running": "Ollama正在运行 🦙",
-    "notRunning": "无法连接到Ollama 🦙",
-    "connectionError": "看起来您遇到了连接错误。请参阅这<anchor>文档</anchor>进行故障排除。"
-  },
   "formError": {
     "noModel": "请选择一个模型",
     "noEmbeddingModel": "请在设置>RAG页面设置一个文本嵌入模型"
@@ -46,7 +40,6 @@
   "sendWhenEnter": "按Enter发送",
   "welcome": "你好！今天我能帮你什么？",
   "useOCR": "从图片中提取文字（OCR）",
-  "fileRetrievalEnabled": "启用文档的 RAG",
   "yapiSetup": {
     "hint": "填入 Y-API 密钥，即可开始与任意网页对话。",
     "button": "填入密钥",

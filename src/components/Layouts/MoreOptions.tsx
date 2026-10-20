@@ -17,8 +17,6 @@ import { convertMathDelimiters } from "@/utils/math-delimiter"
 interface MoreOptionsProps {
   messages: Message[]
   historyId: string
-  /** Kept in the signature so upstream call sites stay untouched. */
-  shareModeEnabled?: boolean
 }
 const formatAsText = (messages: Message[]) => {
   return messages
@@ -181,16 +179,11 @@ export const MoreOptions = ({ messages }: MoreOptionsProps) => {
     }
   ]
 
-  // Web share uploads the whole conversation to whatever server the user
-  // configured, defaulting to pageassist.xyz. Y-API Sidebar ships without a
-  // share backend, so the option is never offered — local exports above stay.
-  const items = baseItems
-
   return (
     <>
       <Dropdown
         menu={{
-          items
+          items: baseItems
         }}
         trigger={["click"]}
         placement="bottomRight">

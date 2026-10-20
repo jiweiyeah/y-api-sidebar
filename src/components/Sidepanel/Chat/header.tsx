@@ -3,7 +3,6 @@ import { useMessage } from "~/hooks/useMessage"
 import { Link } from "react-router-dom"
 import { Tooltip, Drawer, notification } from "antd"
 import {
-  BoxesIcon,
   BrainCog,
   CogIcon,
   EraserIcon,
@@ -17,7 +16,6 @@ import { useTranslation } from "react-i18next"
 import { CurrentChatModelSettings } from "@/components/Common/Settings/CurrentChatModelSettings"
 import React from "react"
 import { useStorage } from "@plasmohq/storage/hook"
-import { PromptSelect } from "@/components/Common/PromptSelect"
 import { Sidebar } from "@/components/Option/Sidebar"
 import { BsIncognito } from "react-icons/bs"
 import { isFireFoxPrivateMode } from "@/utils/is-private-mode"
@@ -38,12 +36,8 @@ export const SidepanelHeader = ({
 
   const {
     clearChat,
-    isEmbedding,
     messages,
     streaming,
-    selectedSystemPrompt,
-    setSelectedSystemPrompt,
-    setSelectedQuickPrompt,
     setMessages,
     setHistory,
     setHistoryId,
@@ -94,12 +88,6 @@ export const SidepanelHeader = ({
             </button>
           </Tooltip>
         ) : null}
-        {isEmbedding ? (
-          <Tooltip title={t("tooltip.embed")}>
-            <BoxesIcon className="size-4 text-gray-500 dark:text-gray-400 animate-bounce animate-infinite" />
-          </Tooltip>
-        ) : null}
-
         {messages.length > 0 && !streaming && (
           <button
             title={t("option:newChat")}
@@ -118,7 +106,7 @@ export const SidepanelHeader = ({
               notification.error({
                 message: "Error",
                 description:
-                  "Page Assist can't save chat in Firefox Private Mode. Temporary chat is enabled by default. More fixes coming soon."
+                  "Y-API Sidebar can't save chat in Firefox Private Mode. Temporary chat is enabled by default."
               })
               return
             }
@@ -152,13 +140,6 @@ export const SidepanelHeader = ({
             <HistoryIcon className="size-4 text-gray-500 dark:text-gray-400" />
           </button>
         </Tooltip>
-        <PromptSelect
-          selectedSystemPrompt={selectedSystemPrompt}
-          setSelectedSystemPrompt={setSelectedSystemPrompt}
-          setSelectedQuickPrompt={setSelectedQuickPrompt}
-          iconClassName="size-4"
-          className="text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-        />
         {!hideCurrentChatModelSettings && (
           <Tooltip title={t("common:currentChatModelSettings")}>
             <button
@@ -201,10 +182,8 @@ export const SidepanelHeader = ({
           setHistory={setHistory}
           setHistoryId={setHistoryId}
           setSelectedModel={setSelectedModel}
-          setSelectedSystemPrompt={setSelectedSystemPrompt}
           clearChat={clearChat}
           historyId={historyId}
-          setSystemPrompt={(e) => {}}
           temporaryChat={false}
           history={history}
           selectedModel={selectedModel}

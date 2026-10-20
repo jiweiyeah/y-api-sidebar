@@ -1,10 +1,6 @@
-import { cleanUrl } from "~/libs/clean-url"
-import {
-  getOllamaURL,
-  systemPromptForNonRagOption
-} from "~/services/ollama"
+import { systemPromptForNonRagOption } from "~/services/ollama"
 import { type ChatHistory, type Message } from "~/store/option"
-import { generateID, getPromptById } from "@/db/dexie/helpers"
+import { generateID } from "@/db/dexie/helpers"
 import { generateHistory } from "@/utils/generate-history"
 import { pageAssistModel } from "@/models"
 import { humanMessageFormatter } from "@/utils/human-message"
@@ -13,8 +9,6 @@ import {
   isReasoningStarted,
   mergeReasoningContent
 } from "@/libs/reasoning"
-import { runMcpNormalChatMode } from "@/libs/mcp/normal-chat"
-import { McpBootstrapError } from "@/libs/mcp/errors"
 import { getModelNicknameByID } from "@/db/dexie/nickname"
 import { systemPromptFormatter } from "@/utils/system-message"
 
@@ -28,7 +22,6 @@ export const normalChatMode = async (
   {
     selectedModel,
     useOCR,
-    selectedSystemPrompt,
     currentChatModelSettings,
     setMessages,
     saveMessageOnSuccess,
@@ -39,20 +32,10 @@ export const normalChatMode = async (
     setAbortController,
     historyId,
     setHistoryId,
-    uploadedFiles,
-    images,
-    setActionInfo,
-    temporaryChat,
-    requireMcpApproval,
-    messageSource,
-    webSearchAsTool,
-    extraMcpServers,
-    extraSystemPrompt,
-    normalizeMcpToolCallArgs
+    images
   }: {
     selectedModel: string
     useOCR: boolean
-    selectedSystemPrompt: string
     currentChatModelSettings: any
     setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
     saveMessageOnSuccess: (data: any) => Promise<string | null>
@@ -63,96 +46,10 @@ export const normalChatMode = async (
     setAbortController: (controller: AbortController | null) => void
     historyId: string | null
     setHistoryId: (id: string) => void
-    uploadedFiles?: any[]
     images?: string[]
-    setActionInfo?: (value: any) => void
-    temporaryChat?: boolean
-    requireMcpApproval?: boolean
-    messageSource?: "copilot" | "web-ui"
-    webSearchAsTool?: boolean
-    extraMcpServers?: any[]
-    extraSystemPrompt?: string
-    normalizeMcpToolCallArgs?: (toolName: string, args: unknown) => unknown
   }
 ) => {
-  console.log("Using normalChatMode")
   setStreaming(true)
-  try {
-    const handledByMcp = await runMcpNormalChatMode(
-      message,
-      image,
-      isRegenerate,
-      messages,
-      history,
-      signal,
-      {
-        selectedModel,
-        useOCR,
-        selectedSystemPrompt,
-        currentChatModelSettings,
-        setMessages,
-        setHistory,
-        setIsProcessing,
-        setStreaming,
-        setActionInfo: setActionInfo || (() => {}),
-        historyId,
-        setHistoryId,
-        uploadedFiles,
-        images,
-        temporaryChat,
-        requireMcpApproval,
-        messageSource,
-        webSearchAsTool,
-        extraMcpServers,
-        extraSystemPrompt,
-        normalizeMcpToolCallArgs
-      }
-    )
-
-    if (handledByMcp) {
-      return
-    }
-  } catch (error) {
-    if (error instanceof McpBootstrapError) {
-      const processedImages = (images || []).map((currentImage) => {
-        if (currentImage.length > 0 && !currentImage.startsWith("data:image")) {
-          return `data:image/jpeg;base64,${currentImage.split(",")[1]}`
-        }
-
-        return currentImage
-      })
-      const imagesToSave =
-        processedImages.length > 0 ? processedImages : image ? [image] : []
-
-      const errorSave = await saveMessageOnError({
-        e: error,
-        botMessage: "",
-        history,
-        historyId,
-        image: imagesToSave.length > 0 ? imagesToSave[0] : "",
-        images: imagesToSave,
-        selectedModel,
-        setHistory,
-        setHistoryId,
-        userMessage: message,
-        isRegenerating: isRegenerate,
-        message_source: messageSource
-      })
-
-      if (!errorSave) {
-        throw error
-      }
-
-      setIsProcessing(false)
-      setStreaming(false)
-      return
-    }
-
-    throw error
-  }
-  const url = await getOllamaURL()
-  let promptId: string | undefined = selectedSystemPrompt
-  let promptContent: string | undefined = undefined
 
   // Process images array for base64 formatting
   const processedImages = (images || []).map((img) => {
@@ -168,8 +65,7 @@ export const normalChatMode = async (
   }
 
   const ollama = await pageAssistModel({
-    model: selectedModel!,
-    baseUrl: cleanUrl(url)
+    model: selectedModel!
   })
 
   let newMessage: Message[] = []
@@ -190,13 +86,7 @@ export const normalChatMode = async (
         sources: [],
         images: userImages,
         modelImage: modelInfo?.model_avatar,
-        modelName: modelInfo?.model_name || selectedModel,
-        documents: uploadedFiles?.map(f => ({
-          type: "file",
-          filename: f.filename,
-          fileSize: f.size,
-          processed: f.processed
-        })) || []
+        modelName: modelInfo?.model_name || selectedModel
       },
       {
         isBot: true,
@@ -231,7 +121,6 @@ export const normalChatMode = async (
 
   try {
     const prompt = await systemPromptForNonRagOption()
-    const selectedPrompt = await getPromptById(selectedSystemPrompt)
 
     // Build content array with text and multiple images
     const contentArray: any[] = [
@@ -259,7 +148,7 @@ export const normalChatMode = async (
 
     const applicationChatHistory = await generateHistory(history, selectedModel)
 
-    if (prompt && !selectedPrompt) {
+    if (prompt) {
       applicationChatHistory.unshift(
         await systemPromptFormatter({
           content: prompt
@@ -271,22 +160,12 @@ export const normalChatMode = async (
       currentChatModelSettings.systemPrompt &&
       currentChatModelSettings.systemPrompt?.trim().length > 0
 
-    if (!isTempSystemprompt && selectedPrompt) {
-      applicationChatHistory.unshift(
-        await systemPromptFormatter({
-          content: selectedPrompt.content
-        })
-      )
-      promptContent = selectedPrompt.content
-    }
-
     if (isTempSystemprompt) {
       applicationChatHistory.unshift(
         await systemPromptFormatter({
           content: currentChatModelSettings.systemPrompt
         })
       )
-      promptContent = currentChatModelSettings.systemPrompt
     }
 
     let generationInfo: any | undefined = undefined
@@ -410,16 +289,13 @@ export const normalChatMode = async (
       fullText,
       source: [],
       generationInfo,
-      prompt_content: promptContent,
-      prompt_id: promptId,
       reasoning_time_taken: timetaken
     })
 
     setIsProcessing(false)
     setStreaming(false)
   } catch (e) {
-
-    console.log(e)
+    console.error(e)
 
     const imagesToSave = processedImages.length > 0 ? processedImages : (image ? [image] : [])
 
@@ -434,9 +310,7 @@ export const normalChatMode = async (
       setHistory,
       setHistoryId,
       userMessage: message,
-      isRegenerating: isRegenerate,
-      prompt_content: promptContent,
-      prompt_id: promptId
+      isRegenerating: isRegenerate
     })
 
     if (!errorSave) {

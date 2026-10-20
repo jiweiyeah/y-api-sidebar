@@ -10,7 +10,6 @@ import "~/i18n"
 import { useTranslation } from "react-i18next"
 import { PageAssistProvider } from "@/components/Common/PageAssistProvider"
 import { FontSizeProvider } from "@/context/FontSizeProvider"
-import { runAllMigrations } from "@/db/dexie/migration"
 import { useUiDirection } from "~/hooks/useUiDirection"
 
 function IndexOption() {

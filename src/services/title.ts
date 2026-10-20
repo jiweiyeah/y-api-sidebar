@@ -1,11 +1,8 @@
 import { pageAssistModel } from "@/models"
 import { Storage } from "@plasmohq/storage"
-import { getOllamaURL } from "./ollama"
-import { cleanUrl } from "@/libs/clean-url"
 import { HumanMessage } from "@langchain/core/messages"
 import { removeReasoning } from "@/libs/reasoning"
 import { ChatHistory } from "@/store/option"
-import { isConversationMessage } from "@/libs/mcp/utils"
 import { getTitleById, updateHistory } from "@/db/dexie/helpers"
 import { useStoreMessageOption } from "@/store/option"
 import { useStoreMessage } from "@/store"
@@ -37,8 +34,8 @@ Shakespeare Analyse Literarische
 Response:`
 
 const formatHistoryAsQuery = (history: ChatHistory): string => {
-    const conversationHistory = history.filter((message) =>
-        isConversationMessage(message)
+    const conversationHistory = history.filter(
+        (message) => message.role === "user" || message.role === "assistant"
     )
 
     if (conversationHistory.length === 0) return ""
@@ -91,14 +88,10 @@ export const generateTitle = async (model: string, history: ChatHistory, fallBac
     }
 
     try {
-        const url = await getOllamaURL()
-
-
         const defaultTitleModel = await titleGenerationModel();
         const titleGenModel = defaultTitleModel || model
 
         const titleModel = await pageAssistModel({
-            baseUrl: cleanUrl(url),
             model: titleGenModel
         })
 

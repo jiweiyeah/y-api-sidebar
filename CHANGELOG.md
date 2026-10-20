@@ -25,12 +25,33 @@ First public release. Fork of Page Assist v1.5.88.
 
 ### Removed
 
-- Web share. Upstream posted the full conversation to
-  `pageassist.xyz/api/v1/share/create` by default. Local exports (txt, md, json,
-  png) remain.
-- Upstream donation links (Ko-fi, GitHub Sponsors), Discord and Twitter links,
-  and the `.github/FUNDING.yml` that pointed at the upstream author.
-- The `extensions/page-action` sub-project and its build scripts.
+- **Every feature outside chat.** The extension now does one thing: talk to
+  Y-API. Deleted in this release:
+  - RAG over uploaded documents, knowledge bases, the embedding/vector store
+    pipeline, text splitters, document loaders and parsers
+  - MCP servers, MCP tools, OAuth, and the human-in-the-loop approval UI
+  - WebMCP and Page Action (including the `extensions/page-action` sub-project)
+  - Web search: all 19 search engines, the search chat mode and its settings
+  - Saved prompts, copilot prompts, quick prompts and the prompt selector
+  - TTS (ElevenLabs, Mistral, OpenAI), voice selection and read-aloud
+  - YouTube auto-summarise and its content scripts
+  - Ollama and Chrome Gemini Nano model adapters, model pulling, the Hugging
+    Face pull content script, and all local-daemon probing
+  - Tab mentions, the message queue, quote-reply and document chips
+  - Web share. Upstream posted the full conversation to
+    `pageassist.xyz/api/v1/share/create` by default. Local exports (txt, md,
+    json, png) remain.
+  - Upstream donation links (Ko-fi, GitHub Sponsors), Discord and Twitter links,
+    and the `.github/FUNDING.yml` that pointed at the upstream author.
+- The settings sidebar now lists four pages: General, OpenAI Compatible API,
+  Manage Models and About. Everything else was a dead route.
+- The IndexedDB schema was flattened to a single `version(6)` declaration, so
+  opening an existing install drops the tables the removed features used
+  (`knowledge`, `documents`, `vectors`, `mcpServers`, `memory`, `prompts`,
+  `sessionFiles`, `modelState`, `providerState`).
+- Permissions shrank from ten to four: `storage`, `sidePanel`,
+  `unlimitedStorage`, `contextMenus`. `host_permissions` narrowed from
+  `http://*/* https://*/* file://*/*` to the Y-API origin only.
 
 ### Fixed
 
@@ -46,5 +67,7 @@ commit is an unmodified import, so `git diff` against it shows the complete set
 of changes. The MIT licence and original copyright notice are preserved in
 `LICENCE`.
 
-Upstream features retained: RAG over uploaded documents, saved prompts, web
-search, MCP servers, page actions, WebMCP, TTS, chat export, 19 UI languages.
+Upstream features retained: the side panel and Playground chat surfaces, image
+input with local OCR, streaming with reasoning output, per-chat model settings,
+branching, message editing and regeneration, project folders, chat persistence
+in IndexedDB, import/export, and 19 UI languages.

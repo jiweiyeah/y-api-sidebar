@@ -1,18 +1,12 @@
 import { useDarkMode } from "~/hooks/useDarkmode"
 import { Select, Switch } from "antd"
 import { MoonIcon, SunIcon } from "lucide-react"
-import { SearchModeSettings } from "./search-mode"
 import { useTranslation } from "react-i18next"
 import { useI18n } from "@/hooks/useI18n"
-import { TTSModeSettings } from "./tts-mode"
 import { useStorage } from "@plasmohq/storage/hook"
 import { SystemSettings } from "./system-settings"
 import { SSTSettings } from "./sst-settings"
-import { BetaTag } from "@/components/Common/Beta"
 import { getDefaultOcrLanguage, ocrLanguages } from "@/data/ocr-language"
-import { Storage } from "@plasmohq/storage"
-import { useQuery } from "@tanstack/react-query"
-import { getAllPrompts, getAllPromptsSystem } from "@/db/dexie/helpers"
 
 export const GeneralSettings = () => {
   const [userChatBubble, setUserChatBubble] = useStorage("userChatBubble", true)
@@ -22,21 +16,6 @@ export const GeneralSettings = () => {
     false
   )
 
-  const [enableQuoteReply, setEnableQuoteReply] = useStorage(
-    "enableQuoteReply",
-    true
-  )
-
-  const [defaultCopilotPrompt, setDefaultCopilotPrompt] = useStorage(
-    "defaultCopilotPrompt",
-    undefined
-  )
-
-  const [defaultWebUIPrompt, setDefaultWebUIPrompt] = useStorage(
-    "defaultWebUIPrompt",
-    undefined
-  )
-
   const [copilotResumeLastChat, setCopilotResumeLastChat] = useStorage(
     "copilotResumeLastChat",
     false
@@ -44,10 +23,6 @@ export const GeneralSettings = () => {
 
   const [webUIResumeLastChat, setWebUIResumeLastChat] = useStorage(
     "webUIResumeLastChat",
-    false
-  )
-  const [defaultChatWithWebsite, setDefaultChatWithWebsite] = useStorage(
-    "defaultChatWithWebsite",
     false
   )
 
@@ -69,9 +44,6 @@ export const GeneralSettings = () => {
   const [hideCurrentChatModelSettings, setHideCurrentChatModelSettings] =
     useStorage("hideCurrentChatModelSettings", false)
 
-  const [sendNotificationAfterIndexing, setSendNotificationAfterIndexing] =
-    useStorage("sendNotificationAfterIndexing", false)
-
   const [checkWideMode, setCheckWideMode] = useStorage("checkWideMode", false)
 
   const [openReasoning, setOpenReasoning] = useStorage("openReasoning", false)
@@ -83,15 +55,6 @@ export const GeneralSettings = () => {
 
   const [useMarkdownForUserMessage, setUseMarkdownForUserMessage] = useStorage(
     "useMarkdownForUserMessage",
-    false
-  )
-
-  const [tabMentionsEnabled, setTabMentionsEnabled] = useStorage(
-    "tabMentionsEnabled",
-    false
-  )
-  const [pasteLargeTextAsFile, setPasteLargeTextAsFile] = useStorage(
-    "pasteLargeTextAsFile",
     false
   )
 
@@ -113,15 +76,6 @@ export const GeneralSettings = () => {
   const [removeReasoningTagFromCopy, setRemoveReasoningTagFromCopy] =
     useStorage("removeReasoningTagFromCopy", true)
 
-  const [youtubeAutoSummarize, setYoutubeAutoSummarize] = useStorage(
-    {
-      key: "youtubeAutoSummarize",
-      instance: new Storage({
-        area: "local"
-      })
-    },
-    false
-  )
   const [hideReasoningWidget, setHideReasoningWidget] = useStorage(
     "hideReasoningWidget",
     false
@@ -131,28 +85,6 @@ export const GeneralSettings = () => {
     "persistChatInput",
     false
   )
-
-  const [enableMessageQueue, setEnableMessageQueue] = useStorage(
-    "enableMessageQueue",
-    false
-  )
-
-  const [showMcpServersInChat, setShowMcpServersInChat] = useStorage(
-    "showMcpServersInChat",
-    true
-  )
-  const [enableAgentWebSearch, setEnableAgentWebSearch] = useStorage(
-    "enableAgentWebSearch",
-    true
-  )
-  const [showProviderNameInModelList, setShowProviderNameInModelList] =
-    useStorage("showProviderNameInModelList", false)
-  const [mcpHumanInLoop, setMcpHumanInLoop] = useStorage(
-    "mcpHumanInLoop",
-    false
-  )
-  const [optimizeQueueForSmallScreen, setOptimizeQueueForSmallScreen] =
-    useStorage("optimizeQueueForSmallScreen", false)
 
   const [tableTextWrap, setTableTextWrap] = useStorage("tableTextWrap", false)
 
@@ -176,11 +108,6 @@ export const GeneralSettings = () => {
   const { mode, toggleDarkMode } = useDarkMode()
   const { t } = useTranslation("settings")
   const { changeLocale, locale, supportLanguage } = useI18n()
-
-  const { data: prompts } = useQuery({
-    queryKey: ["getAllPromptsForSettings"],
-    queryFn: getAllPromptsSystem
-  })
 
   return (
     <dl className="flex flex-col space-y-6 text-sm">
@@ -227,17 +154,6 @@ export const GeneralSettings = () => {
       <div className="flex flex-row justify-between">
         <div className="inline-flex items-center gap-2">
           <span className="text-gray-700   dark:text-neutral-50">
-            {t("generalSettings.settings.turnOnChatWithWebsite.label")}
-          </span>
-        </div>
-        <Switch
-          checked={defaultChatWithWebsite}
-          onChange={(checked) => setDefaultChatWithWebsite(checked)}
-        />
-      </div>
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
             {t("generalSettings.settings.webUIResumeLastChat.label")}
           </span>
         </div>
@@ -274,19 +190,6 @@ export const GeneralSettings = () => {
       <div className="flex flex-row justify-between">
         <div className="inline-flex items-center gap-2">
           <span className="text-gray-700   dark:text-neutral-50">
-            {t("generalSettings.settings.sendNotificationAfterIndexing.label")}
-          </span>
-        </div>
-
-        <Switch
-          checked={sendNotificationAfterIndexing}
-          onChange={setSendNotificationAfterIndexing}
-        />
-      </div>
-
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
             {t("generalSettings.settings.generateTitle.label")}
           </span>
         </div>
@@ -296,9 +199,6 @@ export const GeneralSettings = () => {
           onChange={(checked) => setGenerateTitle(checked)}
         />
       </div>
-
-      {/* Local Ollama status probing is not part of Y-API Sidebar, so the
-          toggle is gone. The storage key still defaults to false above. */}
 
       <div className="flex flex-row justify-between">
         <div className="inline-flex items-center gap-2">
@@ -379,32 +279,6 @@ export const GeneralSettings = () => {
       </div>
 
       <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <BetaTag />
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t("generalSettings.settings.tabMentionsEnabled.label")}
-          </span>
-        </div>
-
-        <Switch
-          checked={tabMentionsEnabled}
-          onChange={(checked) => setTabMentionsEnabled(checked)}
-        />
-      </div>
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t("generalSettings.settings.pasteLargeTextAsFile.label")}
-          </span>
-        </div>
-
-        <Switch
-          checked={pasteLargeTextAsFile}
-          onChange={(checked) => setPasteLargeTextAsFile(checked)}
-        />
-      </div>
-
-      <div className="flex flex-row justify-between">
         <span className="text-gray-700   dark:text-neutral-50">
           {t("generalSettings.settings.ocrLanguage.label")}
         </span>
@@ -447,22 +321,6 @@ export const GeneralSettings = () => {
         />
       </div>
 
-      {!isFireFox && (
-        <div className="flex flex-row justify-between">
-          <div className="inline-flex items-center gap-2">
-            <BetaTag />
-            <span className="text-gray-700 dark:text-neutral-50 ">
-              {t("generalSettings.settings.youtubeAutoSummarize.label")}
-            </span>
-          </div>
-
-          <Switch
-            checked={youtubeAutoSummarize}
-            onChange={(checked) => setYoutubeAutoSummarize(checked)}
-          />
-        </div>
-      )}
-
       <div className="flex flex-row justify-between">
         <span className="text-gray-700 dark:text-neutral-50 ">
           {t("generalSettings.settings.webuiTemporaryChat.label")}
@@ -471,68 +329,6 @@ export const GeneralSettings = () => {
         <Switch
           checked={webuiTemporaryChat}
           onChange={(checked) => setWebuiTemporaryChat(checked)}
-        />
-      </div>
-
-      <div className="flex flex-row justify-between">
-        <span className="text-gray-700   dark:text-neutral-50">
-          {t("generalSettings.settings.defaultCopilotPrompt.label")}
-        </span>
-
-        <Select
-          placeholder={t(
-            "generalSettings.settings.defaultCopilotPrompt.placeholder"
-          )}
-          allowClear
-          showSearch
-          style={{ width: "200px" }}
-          options={
-            prompts
-              ? prompts.map((prompt) => ({
-                  key: prompt.id,
-                  value: prompt.id,
-                  label: prompt.title
-                }))
-              : []
-          }
-          value={defaultCopilotPrompt || undefined}
-          filterOption={(input, option) =>
-            option!.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-          onChange={(value) => {
-            setDefaultCopilotPrompt(value || null)
-          }}
-        />
-      </div>
-
-      <div className="flex flex-row justify-between">
-        <span className="text-gray-700   dark:text-neutral-50">
-          {t("generalSettings.settings.defaultWebUIPrompt.label")}
-        </span>
-
-        <Select
-          placeholder={t(
-            "generalSettings.settings.defaultWebUIPrompt.placeholder"
-          )}
-          allowClear
-          showSearch
-          style={{ width: "200px" }}
-          options={
-            prompts
-              ? prompts.map((prompt) => ({
-                  key: prompt.id,
-                  value: prompt.id,
-                  label: prompt.title
-                }))
-              : []
-          }
-          value={defaultWebUIPrompt || undefined}
-          filterOption={(input, option) =>
-            option!.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
-          onChange={(value) => {
-            setDefaultWebUIPrompt(value || null)
-          }}
         />
       </div>
 
@@ -646,99 +442,6 @@ export const GeneralSettings = () => {
         <div className="inline-flex items-center gap-2">
           <span className="text-gray-700   dark:text-neutral-50">
             {t(
-              "generalSettings.settings.enableMessageQueue.label",
-              "Enable Message Queue While Streaming"
-            )}
-          </span>
-        </div>
-
-        <Switch
-          checked={enableMessageQueue}
-          onChange={(checked) => setEnableMessageQueue(checked)}
-        />
-      </div>
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span
-            className={`text-gray-700 dark:text-neutral-50`}>
-            {t(
-              "generalSettings.settings.optimizeQueueForSmallScreen.label",
-              "Optimize Chat UI for Small Screens"
-            )}
-          </span>
-        </div>
-        <Switch
-          checked={optimizeQueueForSmallScreen}
-          onChange={(checked) => setOptimizeQueueForSmallScreen(checked)}
-        />
-      </div>
-
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t(
-              "generalSettings.settings.showMcpServersInChat.label",
-              "Show MCP Servers Toggle in Chat"
-            )}
-          </span>
-        </div>
-
-        <Switch
-          checked={showMcpServersInChat}
-          onChange={(checked) => setShowMcpServersInChat(checked)}
-        />
-      </div>
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t(
-              "generalSettings.settings.enableAgentWebSearch.label",
-              "Use Agent Web Search (model decides when to search and fetch)"
-            )}
-          </span>
-        </div>
-
-        <Switch
-          checked={enableAgentWebSearch}
-          onChange={(checked) => setEnableAgentWebSearch(checked)}
-        />
-      </div>
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t(
-              "generalSettings.settings.showProviderNameInModelList.label",
-              "Show Provider Name in Model List"
-            )}
-          </span>
-        </div>
-
-        <Switch
-          checked={showProviderNameInModelList}
-          onChange={(checked) => setShowProviderNameInModelList(checked)}
-        />
-      </div>
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t(
-              "generalSettings.settings.mcpHumanInLoop.label",
-              "Require approval before running MCP tools"
-            )}
-          </span>
-        </div>
-
-        <Switch
-          checked={mcpHumanInLoop}
-          onChange={(checked) => setMcpHumanInLoop(checked)}
-        />
-      </div>
-
-
-      <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t(
               "generalSettings.settings.hideChatScrollbar.label",
               "Hide Chat Scrollbar"
             )}
@@ -755,22 +458,6 @@ export const GeneralSettings = () => {
         <div className="inline-flex items-center gap-2">
           <span className="text-gray-700   dark:text-neutral-50">
             {t(
-              "generalSettings.settings.enableQuoteReply.label",
-              "Reply to Selected Text in Assistant Messages"
-            )}
-          </span>
-        </div>
-
-        <Switch
-          checked={enableQuoteReply}
-          onChange={(checked) => setEnableQuoteReply(checked)}
-        />
-      </div>
-
-        <div className="flex flex-row justify-between">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-gray-700   dark:text-neutral-50">
-            {t(
               "generalSettings.settings.forceRTL.label",
               "Always Use RTL Layout (Right-to-Left in Any Language)"
             )}
@@ -778,7 +465,6 @@ export const GeneralSettings = () => {
         </div>
         <Switch checked={forceRTL} onChange={(checked) => setForceRTL(checked)} />
       </div>
-
 
       <div className="flex flex-row justify-between">
         <span className="text-gray-700 dark:text-neutral-50 ">
@@ -798,9 +484,7 @@ export const GeneralSettings = () => {
             : t("generalSettings.settings.darkMode.options.dark")}
         </button>
       </div>
-      <SearchModeSettings />
       <SSTSettings />
-      <TTSModeSettings />
       <SystemSettings />
     </dl>
   )

@@ -28,24 +28,24 @@ It is a fork of [Page Assist](https://github.com/n4ze3m/page-assist), reduced to
 a single purpose and pointed at [Y-API](https://y-api.bestvirtualgoods.com/).
 
 <p align="center">
-  <img src="docs/images/store-1-chat.png" width="640" alt="Asking about a page in the side panel">
+  <img src="docs/images/store/en/1-sidebar-chat.png" width="640" alt="Chat in the side panel">
 </p>
 <p align="center">
-  <img src="docs/images/store-2-empty.png" width="420" alt="Empty state">
-  <img src="docs/images/store-3-settings.png" width="420" alt="Provider settings">
+  <img src="docs/images/store/en/2-fetch-models.png" width="420" alt="Fetch the model list from Y-API">
+  <img src="docs/images/store/en/3-api-key.png" width="420" alt="Paste your Y-API key">
 </p>
 
 ## Features
 
-- **Ask about the current page** — text is extracted as Markdown and sent as
-  context. No vision model required, so it works with text-only models too.
-- **Plain chat** — a normal chat window, same key, same history.
-- **Chat with a document** — drop in a PDF or text file and ask about it.
+- **Ask about the current page** — the side panel reads the page you are on.
+- **Plain chat** — a normal chat window, same key, same history. The full-page
+  Playground view is one click away.
+- **Images** — paste or drop a screenshot and ask about it, or run OCR locally.
 - **Local history** — conversations live in IndexedDB. Export to txt / md / json
   / png whenever you want.
-- **Saved prompts** — store the ones you reuse.
-- **Read aloud** — optional TTS.
-- **19 languages** in the UI, 14 in the store listing.
+- **Reasoning models** — thinking output is shown separately and can be toggled
+  per chat.
+- **20 languages** in the UI, 14 in the store listing.
 
 ## Install
 
@@ -69,23 +69,23 @@ unpacked**, and pick `build/chrome-mv3`.
 
 1. Sign up at <https://y-api.bestvirtualgoods.com/>.
 2. Create a key under [API Keys](https://y-api.bestvirtualgoods.com/app/keys).
-3. In the extension: Settings → **OpenAI Compatible API** → **Add Provider**.
-   The endpoint is prefilled. Paste the key, save.
-4. Click **Model List**, tick the models you want, save. They now appear in the
-   model picker.
+3. Open the extension settings → **OpenAI Compatible API**. There is exactly one
+   provider (Y-API) and its endpoint is fixed. Paste your key and save.
+4. Under **Manage Models**, add the model ids you want (the picker fetches the
+   live list from Y-API). They appear in the model selector immediately.
 
-You can point the extension at any OpenAI-compatible endpoint, including one you
-host yourself — the provider preset is only a default.
+The base URL is not editable: this build talks only to
+`https://api.y-api.bestvirtualgoods.com/v1`.
 
 ## Configuration
 
 | Setting | Where | Notes |
 | --- | --- | --- |
-| Endpoint + key | Settings → OpenAI Compatible API | Any OpenAI-compatible base URL |
-| Enabled models | Settings → OpenAI Compatible API → Model List | Only ticked models show up |
-| Page context | Checkbox in the empty chat view | "Chat with current page" |
-| Web search | Settings → General | Off by default; needs a search provider |
+| API key | Settings → OpenAI Compatible API | The only credential; stored locally |
+| Enabled models | Settings → Manage Models | Only added models show up in the picker |
+| Per-chat model settings | Chat header → brain icon | System prompt, temperature, top-k/p, reasoning effort |
 | Theme / language | Settings → General | Light, dark, system |
+| Default OCR language | Settings → General | Local OCR only, no network |
 
 ## Development
 
@@ -108,17 +108,18 @@ src/
   entries/           background worker, options page, side panel
   components/        UI, split by surface (Option / Sidepanel / Common)
   db/dexie/          IndexedDB schema and queries
-  models/            Chat model adapters (OpenAI-compatible, Ollama, etc.)
-  services/          Ollama probe, TTS, web search, page actions
-  utils/             Provider presets, helpers
+  models/            OpenAI-compatible chat adapter
+  services/          Model list, settings, OCR, title generation
+  utils/             Provider constants, helpers
 docs/images/         Screenshots used in this README and the store listing
 ```
 
 ## What changed from upstream
 
-See [CHANGELOG.md](CHANGELOG.md#fork-notes). In short: rebranded, provider list
-cut to one preset, local-model probing removed, and the upstream web-share
-feature (which uploaded conversations to `pageassist.xyz`) deleted.
+See [CHANGELOG.md](CHANGELOG.md#fork-notes). In short: rebranded, cut down to a
+single fixed Y-API provider, and everything outside chat removed — RAG over
+uploaded documents, knowledge bases, saved prompts, MCP, WebMCP, page actions,
+web search, TTS, YouTube summaries and web share.
 
 ## Privacy
 

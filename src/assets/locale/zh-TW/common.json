@@ -238,5 +238,10 @@
   "loading": "載入中",
   "deleteProjectConfirmation": "確定要刪除此專案資料夾嗎？聊天紀錄將移回「您的聊天」。",
   "generateTitle": "使用 AI 生成標題",
-  "generateTitleError": "無法生成標題"
+  "generateTitleError": "無法生成標題",
+  "somethingWentWrong": "發生錯誤，請重試。",
+  "goBack": "返回",
+  "preview": "預覽",
+  "showCode": "程式碼",
+  "more": "More"
 }

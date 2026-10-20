@@ -15,10 +15,9 @@ the page you're reading, or just chat. Bring your own API key.
 
 ## What it does
 
-- Ask about the current page — text is extracted as Markdown, so text-only
-  models work too
-- Plain chat, same key, same local history
-- Chat with a document you upload
+- Ask about the current page, from the side panel
+- Plain chat in the side panel or the full-page Playground
+- Paste or drop an image; optional local OCR
 - Everything stored locally in IndexedDB; nothing sent to us
 
 ## Install

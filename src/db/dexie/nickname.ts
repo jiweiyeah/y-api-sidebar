@@ -13,12 +13,6 @@ export class ModelNickname {
       model_id: id,
       model_avatar
     })
-    console.log({
-      id,
-      model_name,
-      model_id: id,
-      model_avatar
-    })
   }
 
   async getModelNicknameByID(model_id: string) {
@@ -31,16 +25,12 @@ export class ModelNickname {
 
   async importDataV2(
     data: ModelNicknames,
-    options: {
+    _options: {
       replaceExisting?: boolean
       mergeData?: boolean
     } = {}
   ): Promise<void> {
-    const { replaceExisting = false, mergeData = true } = options
-
     for (const oai of data) {
-      console.log("Saving x")
-
       await db.modelNickname.put({
         id: oai.model_id,
         model_id: oai.model_id,

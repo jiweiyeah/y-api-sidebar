@@ -30,7 +30,7 @@ export const NewChat: React.FC<Props> = ({ clearChat }) => {
               notification.error({
                 message: "Error",
                 description:
-                  "Page Assist can't save chat in Firefox Private Mode. Temporary chat is enabled by default. More fixes coming soon."
+                  "Y-API Sidebar can't save chat in Firefox Private Mode. Temporary chat is enabled by default."
               })
               return
             }

@@ -45,15 +45,12 @@ import {
   updateHistory,
   pinHistory,
   formatToMessage,
-  getSessionFiles,
-  getPromptById,
   getProjectFolders,
   addProjectFolder,
   updateProjectFolder,
   deleteProjectFolder,
   assignHistoryToFolder
 } from "@/db/dexie/helpers"
-import { UploadedFile } from "@/db/dexie/types"
 import { isDatabaseClosedError } from "@/utils/ff-error"
 import { updatePageTitle } from "@/utils/update-page-title"
 import { generateTitle, HISTORY_TITLE_UPDATED_EVENT } from "@/services/title"
@@ -64,9 +61,6 @@ type Props = {
   setHistory: (history: any) => void
   setHistoryId: (historyId: string) => void
   setSelectedModel: (model: string) => void
-  setSelectedSystemPrompt: (prompt: string) => void
-  setSystemPrompt: (prompt: string) => void
-  setContext?: (context: UploadedFile[]) => void
   clearChat: () => void
   temporaryChat: boolean
   historyId: string
@@ -81,13 +75,10 @@ export const Sidebar = ({
   setHistory,
   setHistoryId,
   setSelectedModel,
-  setSelectedSystemPrompt,
   clearChat,
   historyId,
-  setSystemPrompt,
   temporaryChat,
   isOpen,
-  setContext,
   selectedModel
 }: Props) => {
   const { t } = useTranslation(["option", "common"])
@@ -252,7 +243,6 @@ export const Sidebar = ({
 
         // If searching, don't group by date - just return all results in a single group
         if (debouncedSearchQuery) {
-          console.log("Search results:", result.histories)
           return {
             groups:
               result.histories.length > 0
@@ -707,21 +697,6 @@ export const Sidebar = ({
                 if (currentChatModel) {
                   setSelectedModel(currentChatModel)
                 }
-              }
-              const lastUsedPrompt = historyDetails?.last_used_prompt
-              if (lastUsedPrompt) {
-                if (lastUsedPrompt.prompt_id) {
-                  const prompt = await getPromptById(lastUsedPrompt.prompt_id)
-                  if (prompt) {
-                    setSelectedSystemPrompt(lastUsedPrompt.prompt_id)
-                  }
-                }
-                setSystemPrompt(lastUsedPrompt.prompt_content)
-              }
-
-              if (setContext) {
-                const session = await getSessionFiles(chat.id)
-                setContext(session)
               }
               updatePageTitle(chat.title)
               navigate("/")

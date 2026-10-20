@@ -1,203 +1,282 @@
 # Chrome Web Store 上架材料
 
-本文件是提交 Chrome Web Store 时逐字段复制粘贴用的清单。所有素材都在仓库里，
-不需要另找。
+逐字段复制粘贴用。本文件内容与 `v1.0.0` 的实际构建一致；截图全部由
+`build/chrome-mv3` 真实运行截取，没有画稿。
+
+## 0. 速查表
 
 | 项 | 值 |
 | --- | --- |
-| 上传包 | `bun run zip` → `build/y-api-sidebar-1.0.0-chrome.zip`（约 7.2 MB） |
-| 商店图标 | [`docs/images/icon-128.png`](docs/images/icon-128.png)（128×128） |
-| 截图 | `docs/images/store-1-chat.png`、`store-2-empty.png`、`store-3-settings.png`（均 1280×800） |
-| 隐私政策 URL | `https://jiweiyeah.github.io/y-api-sidebar/privacy.html`（需先托管，见文末） |
+| 上传包 | `build/y-api-sidebar-1.0.0-chrome.zip`（5.5 MB） |
+| Edge 包 | `build/y-api-sidebar-1.0.0-edge.zip`（5.5 MB） |
+| 商店图标 | `docs/images/icon-128.png`（128×128 PNG） |
+| 截图（英文，主语言） | `docs/images/store/en/1..4-*.png`（1280×800） |
+| 截图（中文） | `docs/images/store/zh-1..4-*.png`（1280×800） |
+| 隐私政策 | `https://jiweiyeah.github.io/y-api-sidebar/privacy.html` |
+| 源码仓库 | `https://github.com/jiweiyeah/y-api-sidebar` |
 
 ---
 
 ## 1. 基本信息
 
-**名称**（≤45 字符）
+**名称**（41 / 45 字符）
 
 ```
 Y-API Sidebar - AI assistant for any page
 ```
 
-**简短描述**（≤132 字符）
+**简短描述**（73 / 132 字符）
 
 ```
-Ask AI about any page from your browser sidebar. Bring your own Y-API key — no local setup, no analytics.
+Ask AI about any page. Bring your own Y-API key, no local setup required.
 ```
+
+> 想强调侧边栏可换成下面这条（74 字符）：
+> `AI assistant in your browser sidebar. Bring your own Y-API key — no setup, no tracking.`
 
 **类别**：Productivity → Tools
 
-**语言**：English（含 zh_CN / zh_TW / ja / de / fr / es / it / pt-BR / ru / ko / ar / fa / he / uk / ml / da / no / sv）
+**语言**：商店 listing 14 个（`src/public/_locales`）：
+
+English, 简体中文, 繁體中文, 日本語, Deutsch, Français, Español, Italiano,
+Português (Brasil), Русский, Dansk, Norsk, Svenska, فارسی
+
+扩展界面另有 6 个语言只在应用内提供、未提交商店 listing：한국어, العربية,
+עברית, Українська, മലയാളം, Čeština（合计 20 种界面语言）。
 
 **官方主页**：`https://y-api.bestvirtualgoods.com/`
 
 **支持链接**：`https://y-api.bestvirtualgoods.com/app/support`
 
-**隐私政策**：`https://jiweiyeah.github.io/y-api-sidebar/privacy.html`
-
 ---
 
-## 2. 详细描述
+## 2. 详细描述（英文，主语言）
 
 ```
-Y-API Sidebar puts an AI assistant in your browser's side panel. Ask about the
-page you're reading, or start a plain chat.
+Y-API Sidebar puts an AI assistant in your browser's side panel. Write,
+translate, explain or refactor — without switching tabs. Bring your own Y-API
+key and you are ready; there is nothing to install and nothing to configure.
 
 WHY THIS ONE
-- No local model to install. Add your Y-API API key once and start using it.
-- Your conversations stay in your browser. No analytics, no telemetry, no
-  remote config.
-- Page text is extracted as Markdown, so text-only models work too — you don't
-  need a vision model to ask about a page.
+- No local model runtime. Paste your API key once and start.
+- One provider, fixed endpoint. No dropdowns to get wrong.
+- Your conversations stay in this browser. No analytics, no telemetry, no
+  remote config, no account.
 
 WHAT YOU CAN DO
-- Summarize, translate or explain the page you're on
-- Ask follow-up questions with the page as context
-- Chat with a document you upload (PDF, txt, md)
-- Save prompts you reuse, and keep chat history locally
-- Export a conversation as txt, md, json or png
-- Read replies aloud
-- Works in 19 interface languages
+- Chat in the side panel or in the full-page window
+- Pull the live model list from Y-API and add models in bulk; models you
+  already added are greyed out
+- Give a model a nickname or an avatar, or tune temperature, top-p, thinking
+  level and other sampling parameters per model
+- Paste or drop an image and ask about it, with optional on-device OCR
+- Watch reasoning models think, shown separately from the final answer
+- Keep chat history locally with folders and pins; export to txt, md, json, png
+- Search your history; resume the last chat when the panel opens
+- Switch between light and dark themes; 20 interface languages, 14 in the store listing
 
 GETTING A KEY
 Sign up at https://y-api.bestvirtualgoods.com/, create a key under API Keys,
-paste it into the extension. The endpoint is already filled in. You can point
-the extension at any OpenAI-compatible endpoint instead, including one you
-host yourself.
+paste it into Settings → OpenAI Compatible API. The endpoint
+https://api.y-api.bestvirtualgoods.com/v1 is built in and not editable.
 
 PRIVACY
 Your API key, chat history and settings are stored locally in IndexedDB. The
-only outbound traffic is the chat request you send to the endpoint you
-configure. Full policy: https://jiweiyeah.github.io/y-api-sidebar/privacy.html
+only outbound traffic is the request you send to the Y-API endpoint. Full
+policy: https://jiweiyeah.github.io/y-api-sidebar/privacy.html
 
-This extension is built on the open-source Page Assist project (MIT).
+Built on the open-source Page Assist project (MIT).
 Source code: https://github.com/jiweiyeah/y-api-sidebar
 ```
 
 ---
 
-## 3. 图片素材
+## 3. 详细描述（中文，用于 zh_CN listing）
 
-| 素材 | 尺寸 | 文件 | 说明 |
+```
+Y-API Sidebar 把 AI 助手放进浏览器侧边栏。写作、翻译、解释、改代码，不用来回切
+标签页。填入自己的 Y-API 密钥即可使用，无需本地部署，也没有多余配置。
+
+为什么选它
+- 不需要安装本地模型运行时，粘贴密钥就能开始。
+- 只有一个提供商，端点固定，不存在选错供应商的问题。
+- 对话只留在这个浏览器里：无统计、无遥测、无远程配置、无账号体系。
+
+能做什么
+- 在侧边栏或整页窗口里聊天
+- 从 Y-API 实时拉取模型列表并批量添加，已添加的模型自动置灰
+- 给模型设置昵称、头像，单独调整 temperature、top-p、思考等级等采样参数
+- 粘贴或拖入图片提问，可选本地 OCR
+- 推理模型的思考过程单独展示，不混在回答里
+- 聊天历史本地保存，支持文件夹与置顶，可导出 txt / md / json / png
+- 历史会话可搜索；打开侧边栏可恢复上次对话
+- 浅色 / 深色主题，20 种界面语言
+
+获取密钥
+在 https://y-api.bestvirtualgoods.com/ 注册，进入 API Keys 创建密钥，粘贴到
+设置 → OpenAI 兼容 API。端点 https://api.y-api.bestvirtualgoods.com/v1 已内置且
+不可修改。
+
+隐私
+API 密钥、聊天历史与设置都保存在本机 IndexedDB。唯一的对外请求是发送到 Y-API
+端点的对话请求。完整政策：https://jiweiyeah.github.io/y-api-sidebar/privacy.html
+
+基于开源项目 Page Assist（MIT）构建。
+源码：https://github.com/jiweiyeah/y-api-sidebar
+```
+
+---
+
+## 4. 图片素材
+
+全部为 **1280×800 PNG**，符合商店要求（1280×800 或 640×400）。
+
+| 顺序 | 英文（主语言） | 中文 | 展示内容 |
 | --- | --- | --- | --- |
-| 商店图标 | 128×128 | `docs/images/icon-128.png` | 品牌标 |
-| 截图 1 | 1280×800 | `docs/images/store-1-chat.png` | 对话界面，中文 |
-| 截图 2 | 1280×800 | `docs/images/store-2-empty.png` | 空状态，中文 |
-| 截图 3 | 1280×800 | `docs/images/store-3-settings.png` | 设置页，中文 |
-| 小型宣传图 | 440×280 | 未做 | 可选，不影响审核 |
-| 大型宣传图 | 1400×560 | 未做 | 可选，仅在精选位展示 |
+| 1 | `docs/images/store/en/1-sidebar-chat.png` | `docs/images/store/zh-1-sidebar-chat.png` | 侧边栏对话 |
+| 2 | `docs/images/store/en/2-fetch-models.png` | `docs/images/store/zh-2-fetch-models.png` | 拉取模型列表弹窗 |
+| 3 | `docs/images/store/en/3-api-key.png` | `docs/images/store/zh-3-api-key.png` | API 密钥设置页 |
+| 4 | `docs/images/store/en/4-manage-models.png` | `docs/images/store/zh-4-manage-models.png` | 模型管理表格 |
 
-截图里带中文 UI 是刻意的：目标用户包含中文市场，且与 listing 的多语言一致。
-如果审核要求截图语言与 listing 主语言一致，用 `bun run dev` 切英文重截即可。
+商店图标：`docs/images/icon-128.png`（128×128）。
+
+**需要补充的可选项**
+
+- 小型宣传图 440×280：可选，不影响审核。
+- 大型宣传图 1400×560：可选，仅精选位展示。
+- 演示视频：可选。
+
+**截图与功能一致性**
+
+四张图里出现的每个元素都在当前构建中可用：侧边栏对话、拉取模型列表
+（含「已添加」置灰）、固定端点 + API Key 表单、模型管理表格。**没有**出现
+RAG、MCP、知识库、提示词、网页搜索、TTS、Page Action、WebMCP 等已删除功能。
+
+> 已知不一致（按决策保留）：名称与简短描述里的 "any page / 任意网页" 指
+> "在任何网页旁使用侧边栏"，当前构建**不读取网页内容**（无 `tabs` / `scripting`
+> 权限，无内容脚本）。若审核质询，按此口径答复，或临时改为
+> "AI assistant in your browser sidebar"。
 
 ---
 
-## 4. 权限说明（提交时逐条填）
+## 5. 权限说明（逐条填写 justification）
 
-| 权限 | 提交时必须写的理由 |
+manifest 实际只有 4 项权限 + 1 项 host 权限：
+
+| 权限 | 提交时填写的理由 |
 | --- | --- |
-| `host_permissions: http://*/*, https://*/*` | 用户可自行配置任意 OpenAI 兼容端点（含自建服务），因此不能收窄到单一域名。默认端点已在设置页预置。 |
-| `scripting`, `activeTab` | 仅在用户主动就当前页面提问时，读取该页面的文本内容作为上下文。 |
-| `storage`, `unlimitedStorage` | 在本地保存聊天历史、设置与用户上传的知识库文档。 |
-| `sidePanel`, `action` | 侧边栏界面与工具栏按钮。 |
-| `contextMenus` | 右键菜单，对选中文本提问。 |
-| `declarativeNetRequest` | 为用户自建端点调整请求头，规避 CORS 限制。 |
-| `notifications` | 长任务完成时提醒用户。 |
-| `tts` | 朗读回复，仅在用户开启时使用。 |
+| `host_permissions: https://api.y-api.bestvirtualgoods.com/*` | 唯一后端端点，用于拉取模型列表与发送聊天请求。端点固定，用户不可更改，也不访问其他站点。 |
+| `storage` | 保存用户填写的 API Key、聊天历史、模型列表和界面偏好。 |
+| `unlimitedStorage` | 聊天历史与本地 OCR 语言包可能超出默认配额。 |
+| `sidePanel` | 扩展的主体界面就是浏览器的侧边栏。 |
+| `contextMenus` | 右键菜单用于快速打开侧边栏或整页聊天窗口。 |
+
+未申请的权限（若审核问起可说明）：`scripting`、`activeTab`、`tabs`、`webRequest`、
+`declarativeNetRequest`、`notifications`、`tts`，以及宽泛的 `http://*/*`、
+`https://*/*`、`file://*/*`。扩展**不读取任何网页内容**，也不注入内容脚本。
 
 ---
 
-## 5. Privacy practices 表单
+## 6. Privacy practices 表单
 
 **是否收集或使用用户数据**：是
 
-勾选的类别（仅此一项）：
+勾选类别（仅此一项）：
 
-- ☑ **Authentication information** —— 用户填写的 API key
+- ☑ **Authentication information** —— 用户自己填写的 Y-API API Key
 
-用途说明（必填框）：
+用途说明：
 
 ```
-The API key is stored locally in the browser's IndexedDB and transmitted only
-to the API endpoint the user configures, as an Authorization header, to
-authenticate their own requests. It is never sent to the developer and never
-shared with third parties.
+The API key is provided by the user, stored only in the browser's IndexedDB,
+and sent only to the Y-API endpoint (https://api.y-api.bestvirtualgoods.com/v1)
+as an Authorization header so the user's own requests can be authenticated. It
+is never transmitted to the developer and never shared with third parties.
 ```
 
-其余全部**不勾选**：
+其余全部**不勾选**：PII、健康信息、财务与支付信息、个人通信、位置、网页浏览历史、
+用户活动、网站内容。
 
-- ☐ Personally identifiable information
-- ☐ Health information
-- ☐ Financial and payment information
-- ☐ Personal communications
-- ☐ Location
-- ☐ Web history
-- ☐ User activity
-- ☐ Website content
+> 注意：扩展**不上传**聊天内容给开发者；聊天请求直接发往用户自己的 Y-API 端点。
+> 因此「Website content」「Personal communications」都不勾选。这一栏必须与
+> `PRIVACY.md` 第 3 节保持一致。
 
-**三个必答问题**：
+**三个必答问题**
 
 | 问题 | 回答 |
 | --- | --- |
-| 是否出售或转让给第三方 | 否 |
-| 是否用于与核心功能无关的用途 | 否 |
+| 是否出售或转让用户数据给第三方 | 否 |
+| 是否将数据用于与核心功能无关的用途 | 否 |
 | 是否用于判定信用度或放贷 | 否 |
 
-> 注意：这一栏必须与 `PRIVACY.md` 一致。API key 属于 Authentication
-> information，勾选后必须填写上面的用途说明，否则会被打回。
+**远程代码**：不使用。所有 JS 与 WASM（含 Tesseract OCR 核心、`eng-fast` 语言包）
+都打包在扩展内。
 
 ---
 
-## 6. 提交前 checklist
+## 7. 提交前 checklist
 
-- [ ] 开发者账号已付 $5 注册费
-- [ ] `bun run zip` 生成上传包
+- [ ] 开发者账号已注册（Chrome 一次性 $5）
+- [ ] `bun run zip` 生成 `build/y-api-sidebar-1.0.0-chrome.zip`
 - [ ] 上传 zip
-- [ ] 填名称、简短描述、详细描述（上方文案）
+- [ ] 填名称 / 简短描述 / 详细描述
 - [ ] 上传 128×128 图标
-- [ ] 上传 3 张 1280×800 截图
-- [ ] 填类别、语言、主页、支持链接
-- [ ] Privacy practices 表单（第 5 节）
-- [ ] 隐私政策托管到公网，URL 填进 listing
+- [ ] 上传 4 张 1280×800 截图（英文版）
+- [ ] 选类别 Productivity → Tools
+- [ ] 填主页与支持链接
+- [ ] 填 Privacy practices（第 6 节）
+- [ ] 隐私政策 URL 可访问（第 8 节）
 - [ ] 提交审核
 
+**Edge Add-ons** 额外需要：`build/y-api-sidebar-1.0.0-edge.zip`、Store listing
+（与上面文案相同）、Privacy policy URL。Edge 对权限说明的措辞要求更严格，
+直接复用第 5 节即可。
+
 ---
 
-## 7. 隐私政策托管
+## 8. 隐私政策托管
 
-**已托管，直接填这个 URL：**
+已托管，直接填：
 
 ```
 https://jiweiyeah.github.io/y-api-sidebar/privacy.html
 ```
 
-托管方式：GitHub Pages，源为本仓库 `main` 分支的 `/docs` 目录
-（`docs/_config.yml` 指定主题，`docs/privacy.md` 是 `PRIVACY.md` 的副本）。
-
-更新政策时**两个文件都要改**，否则线上与实际不一致：
+GitHub Pages，源为本仓库 `main` 分支的 `/docs` 目录。`docs/privacy.md` 是
+`PRIVACY.md` 的副本，两份必须同步：
 
 ```bash
-# 改完 PRIVACY.md 后
 cp PRIVACY.md docs/privacy.md
 git add PRIVACY.md docs/privacy.md && git commit -m "docs: 更新隐私政策" && git push
 ```
 
-Pages 会在推送后 1–2 分钟自动重建。
-
-### 如果以后想换到自有域名
-
-`PRIVACY.md` 与 `STORE.md` 里的 URL 共出现 4 处，替换时全局搜
-`jiweiyeah.github.io/y-api-sidebar/privacy.html` 即可。换域名后记得同步
-`docs/_config.yml` 或改用 CNAME。
+Pages 在推送后 1–2 分钟自动重建。
 
 ---
 
-## 8. 已知的上游缺陷（不阻塞上架）
+## 9. 重新生成截图
 
-`z-ai/glm-5.3` 的流式响应只有 `: PING` 心跳，没有内容。扩展里表现为光标一直闪。
+截图是真实扩展跑出来的，不是设计稿。流程：
 
-已确认是上游单模型问题：同一个 key 下 `qwen/qwen3.8-flash`、`minimax/minimax-m2.7`、
-`deepseek/deepseek-v4.1-flash` 的流式都正常，只有这个模型非流式正常、流式空。
+```bash
+bun run build:chrome
+# 用 Playwright 加载 build/chrome-mv3，向 IndexedDB 写入演示数据，
+# 以 2x 截取元素级图片，再用 HTML 模板合成 1280×800
+```
 
-建议在 Y-API 侧修掉，或在扩展里对该模型降级为非流式请求。
+要点：
+
+- 演示数据只写 `chatHistories`、`messages`、`openaiConfigs`、`customModels`，
+  API Key 用 `sk-demo-placeholder`，**不要用真实密钥**。
+- 「拉取模型列表」弹窗通过拦截 `/v1/models` 请求伪造返回，避免消耗真实额度。
+- 每次改 UI 后重跑，避免商店图与实际界面不一致（本次即因此重拍：旧图仍有
+  MCP、Page Action、WebMCP、知识库、提示词等已删除的入口）。
+
+---
+
+## 10. 已知的上游缺陷（不阻塞上架）
+
+`z-ai/glm-5.3` 的流式响应只返回 `: PING` 心跳，没有内容，扩展里表现为光标一直闪。
+非流式正常。同 key 下 `qwen/qwen3.8-flash`、`minimax/minimax-m2.7`、
+`deepseek/deepseek-v4.1-flash` 流式均正常。建议在 Y-API 侧修复，或对该模型降级为
+非流式请求。

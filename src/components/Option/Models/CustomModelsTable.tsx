@@ -93,7 +93,7 @@ export const CustomModelsTable = () => {
                 {
                   title: t("manageModels.columns.provider"),
                   dataIndex: "provider",
-                  render: (_, record) => record.provider.name
+                  render: (_, record) => record.provider?.name || "Y-API"
                 },
                 {
                   title: t("manageModels.columns.actions"),

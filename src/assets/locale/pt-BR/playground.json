@@ -1,10 +1,4 @@
 {
-  "ollamaState": {
-    "searching": "Procurando por seu Ollama 🦙",
-    "running": "Ollama está em execução 🦙",
-    "notRunning": "Não foi possível conectar ao Ollama 🦙",
-    "connectionError": "Parece que você está tendo um erro de conexão. Consulte esta <anchor>documentação</anchor> para solucionar o problema."
-  },
   "formError": {
     "noModel": "Por favor, selecione um modelo",
     "noEmbeddingModel": "Por favor, configure um modelo de incorporação na página Configurações > RAG"

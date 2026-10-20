@@ -234,5 +234,12 @@
   "quoteReply": {
     "reply": "Reply",
     "remove": "Remove quote"
-  }
+  },
+  "rename": "Rename",
+  "loading": "Loading…",
+  "somethingWentWrong": "Something went wrong. Please try again.",
+  "goBack": "Go back",
+  "preview": "Preview",
+  "showCode": "Code",
+  "more": "More"
 }

@@ -230,5 +230,7 @@
   "cancelPullingModel": {
     "confirm": "ダウンロードをキャンセルしてもよろしいですか？これによりダウンロードプロセスが停止します。Ollamaのドキュメントによると、中断した場所から再開できます。"
   },
-  "saveChat": "チャットを保存"
+  "saveChat": "チャットを保存",
+  "more": "More",
+  "goBack": "Go back"
 }

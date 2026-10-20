@@ -1,11 +1,4 @@
 {
-  "ollamaState": {
-    "searching": "Searching for Your Ollama 🦙",
-    "running": "Ollama is running 🦙",
-    "notRunning": "Unable to connect to Ollama 🦙",
-    "connectionError": "It seems like you are having a connection error. Please refer to this <anchor>documentation</anchor> for troubleshooting.",
-    "noOllamaHint": "Don't have Ollama installed? You can disable the Ollama integration from <anchor>Ollama Settings</anchor>."
-  },
   "formError": {
     "noModel": "Please select a model",
     "noEmbeddingModel": "Please set an embedding model on the Settings > RAG page"
@@ -47,7 +40,6 @@
   "sendWhenEnter": "Send when Enter pressed",
   "welcome": "Hello! How can I help you today?",
   "useOCR": "Extract text from image (OCR)",
-  "fileRetrievalEnabled": "Enable RAG for Documents",
   "yapiSetup": {
     "hint": "Add your Y-API API key to start chatting with any page.",
     "button": "Add API key",

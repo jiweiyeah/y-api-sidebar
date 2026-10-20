@@ -230,5 +230,12 @@
   "cancelPullingModel": {
     "confirm": "确定要取消下载吗？这将停止下载过程。根据 Ollama 文档，您可以从中断处重新开始下载。"
   },
-  "saveChat": "保存聊天"
+  "saveChat": "保存聊天",
+  "rename": "重命名",
+  "loading": "加载中…",
+  "somethingWentWrong": "出错了，请重试。",
+  "goBack": "返回",
+  "preview": "预览",
+  "showCode": "代码",
+  "more": "More"
 }

@@ -2,38 +2,20 @@ import {
   type ChatHistory as ChatHistoryType,
   type Message as MessageType
 } from "~/store/option"
-import { ChatDocuments } from "@/models/ChatTypes"
-import { isConversationMessage } from "@/libs/mcp/utils"
 import {
   type HistoryInfo,
   type MessageHistory,
   type Message,
-  type Prompts,
-  type UploadedFile,
-  type SessionFiles,
-  type UserSettings,
-  type Webshare,
-  Prompt,
-  LastUsedModelType,
-  OpenAIModelConfigs,
-  ModelNicknames,
-  Models,
-  ProjectFolder,
-  ProjectFolders
+  type Models,
+  type ModelNicknames,
+  type ProjectFolder,
+  type ProjectFolders
 } from "./types"
 import { PageAssistDatabase } from "./chat"
 import { db as chatDB } from "./schema"
-import {
-  deletePromptByIdFB,
-  getAllPromptsFB,
-  getPromptByIdFB,
-  savePromptFB,
-  updatePromptFB
-} from ".."
 import { OpenAIModelDb } from "./openai"
 import { ModelNickname } from "./nickname"
 import { ModelDb } from "./models"
-import { exportMcpServers, importMcpServersV2 } from "./mcp"
 
 // Helper function to generate IDs (keeping the same format)
 export const generateID = () => {
@@ -47,8 +29,7 @@ export const generateID = () => {
 export const saveHistory = async (
   title: string,
   is_rag?: boolean,
-  message_source?: "copilot" | "web-ui" | "branch",
-  doc_id?: string
+  message_source?: "copilot" | "web-ui" | "branch"
 ) => {
   const id = generateID()
   const createdAt = Date.now()
@@ -57,13 +38,13 @@ export const saveHistory = async (
     title: title?.trim()?.length > 0 ? title : "Untitled Chat",
     createdAt,
     is_rag: is_rag || false,
-    message_source,
-    doc_id
+    message_source
   }
   const db = new PageAssistDatabase()
   await db.addChatHistory(history)
   return history
 }
+
 export const updateChatHistoryCreatedAt = async (history_id: string) => {
   const createdAt = Date.now()
   const db = new PageAssistDatabase()
@@ -87,38 +68,22 @@ export const saveMessage = async ({
   images,
   source,
   generationInfo,
-  message_type,
   modelImage,
   modelName,
   reasoning_time_taken,
-  time,
-  documents,
-  messageKind,
-  toolCalls,
-  toolCallId,
-  toolName,
-  toolServerName,
-  toolError
+  time
 }: {
   history_id: string
   name: string
-  role: string
+  role: "user" | "assistant" | "system"
   content: string
   images: string[]
   source?: any[]
   time?: number
-  message_type?: string
   generationInfo?: any
   reasoning_time_taken?: number
   modelName?: string
   modelImage?: string
-  documents?: ChatDocuments
-  messageKind?: Message["messageKind"]
-  toolCalls?: Message["toolCalls"]
-  toolCallId?: string
-  toolName?: string
-  toolServerName?: string
-  toolError?: boolean
 }) => {
   const id = generateID()
   let createdAt = Date.now()
@@ -134,18 +99,10 @@ export const saveMessage = async ({
     images,
     createdAt,
     sources: source,
-    messageType: message_type,
     generationInfo: generationInfo,
     reasoning_time_taken,
     modelName,
-    modelImage,
-    documents,
-    messageKind,
-    toolCalls,
-    toolCallId,
-    toolName,
-    toolServerName,
-    toolError
+    modelImage
   }
   const db = new PageAssistDatabase()
   await db.addMessage(message)
@@ -159,35 +116,20 @@ export const formatToChatHistory = (
   return messages.map((message) => {
     return {
       content: message.content,
-      role: message.role as "user" | "assistant" | "system" | "tool",
+      role: message.role,
       image:
         message.images && message.images.length > 0
           ? message.images[0]
           : undefined,
       images: message.images,
-      createdAt: message.createdAt,
-      messageType: message.messageType,
-      messageKind: message.messageKind,
-      toolCalls: message.toolCalls,
-      toolCallId: message.toolCallId,
-      toolName: message.toolName,
-      toolServerName: message.toolServerName,
-      toolError: message.toolError
+      createdAt: message.createdAt
     }
   })
 }
 
 export const formatToConversationHistory = (
   messages: MessageHistory
-): ChatHistoryType =>
-  formatToChatHistory(
-    messages.filter((message) =>
-      isConversationMessage({
-        role: message.role,
-        messageKind: message.messageKind
-      })
-    )
-  )
+): ChatHistoryType => formatToChatHistory(messages)
 
 export const formatToMessage = (messages: MessageHistory): MessageType[] => {
   messages.sort((a, b) => a.createdAt - b.createdAt)
@@ -203,15 +145,7 @@ export const formatToMessage = (messages: MessageHistory): MessageType[] => {
       modelName: message?.modelName,
       modelImage: message?.modelImage,
       id: message.id,
-      createdAt: message.createdAt,
-      documents: message?.documents,
-      messageType: message?.messageType,
-      messageKind: message?.messageKind,
-      toolCalls: message?.toolCalls,
-      toolCallId: message?.toolCallId,
-      toolName: message?.toolName,
-      toolServerName: message?.toolServerName,
-      toolError: message?.toolError
+      createdAt: message.createdAt
     }
   })
 }
@@ -280,143 +214,6 @@ export const deleteChatForEdit = async (history_id: string, index: number) => {
   }
 }
 
-// Prompt Functions
-export const getAllPrompts = async () => {
-  try {
-    const db = new PageAssistDatabase()
-    return await db.getAllPrompts()
-  } catch (e) {
-    if (isDatabaseClosedError(e)) {
-      return await getAllPromptsFB()
-    }
-
-    return []
-  }
-}
-
-export const getAllPromptsSystem = async () => {
-  try {
-    const db = new PageAssistDatabase()
-    return await db.getAllPrompts()
-  } catch (e) {
-    if (isDatabaseClosedError(e)) {
-      return await getAllPromptsFB()
-    }
-
-    return []
-  }
-}
-
-export const savePrompt = async ({
-  content,
-  title,
-  is_system = false
-}: {
-  title: string
-  content: string
-  is_system: boolean
-}) => {
-  const db = new PageAssistDatabase()
-  const id = generateID()
-  const createdAt = Date.now()
-  const prompt = { id, title, content, is_system, createdAt }
-  await db.addPrompt(prompt)
-  await savePromptFB(prompt)
-  return prompt
-}
-
-export const deletePromptById = async (id: string) => {
-  const db = new PageAssistDatabase()
-  await db.deletePrompt(id)
-  await deletePromptByIdFB(id)
-  return id
-}
-
-export const updatePrompt = async ({
-  content,
-  id,
-  title,
-  is_system
-}: {
-  id: string
-  title: string
-  content: string
-  is_system: boolean
-}) => {
-  const db = new PageAssistDatabase()
-  await db.updatePrompt(id, title, content, is_system)
-  await updatePromptFB({
-    id,
-    title,
-    content,
-    is_system
-  })
-  return id
-}
-
-export const getPromptById = async (id: string) => {
-  try {
-    if (!id || id.trim() === "") return null
-    const db = new PageAssistDatabase()
-    return await db.getPromptById(id)
-  } catch (e) {
-    if (isDatabaseClosedError(e)) {
-      return await getPromptByIdFB(id)
-    }
-    return null
-  }
-}
-
-// Webshare Functions
-export const getAllWebshares = async () => {
-  try {
-    const db = new PageAssistDatabase()
-    return await db.getAllWebshares()
-  } catch (e) {
-    return []
-  }
-}
-
-export const deleteWebshare = async (id: string) => {
-  const db = new PageAssistDatabase()
-  await db.deleteWebshare(id)
-  return id
-}
-
-export const saveWebshare = async ({
-  title,
-  url,
-  api_url,
-  share_id
-}: {
-  title: string
-  url: string
-  api_url: string
-  share_id: string
-}) => {
-  const db = new PageAssistDatabase()
-  const id = generateID()
-  const createdAt = Date.now()
-  const webshare: Webshare = { id, title, url, share_id, createdAt, api_url }
-  await db.addWebshare(webshare)
-  return webshare
-}
-
-// User Functions
-export const getUserId = async () => {
-  const db = new PageAssistDatabase()
-  const id = await db.getUserID()
-  if (!id || id?.trim() === "") {
-    const user_id = "user_xxxx-xxxx-xxx-xxxx-xxxx".replace(/[x]/g, () => {
-      const r = Math.floor(Math.random() * 16)
-      return r.toString(16)
-    })
-    await db.setUserID(user_id)
-    return user_id
-  }
-  return id
-}
-
 // Export/Import Functions
 export const exportChatHistory = async () => {
   const db = new PageAssistDatabase()
@@ -428,26 +225,6 @@ export const exportChatHistory = async () => {
     })
   )
   return messages
-}
-
-export const importChatHistory = async (
-  data: {
-    history: HistoryInfo
-    messages: MessageHistory
-  }[]
-) => {
-  const db = new PageAssistDatabase()
-  for (const { history, messages } of data) {
-    await db.addChatHistory(history)
-    for (const message of messages) {
-      await db.addMessage(message)
-    }
-  }
-}
-
-export const exportPrompts = async () => {
-  const db = new PageAssistDatabase()
-  return await db.getAllPrompts()
 }
 
 export const exportOAIConfigs = async () => {
@@ -488,18 +265,15 @@ export const importModelsV2 = async (
   await db.importDataV2(models, options)
 }
 
-export const importPrompts = async (prompts: Prompts) => {
-  const db = new PageAssistDatabase()
-  for (const prompt of prompts) {
-    await db.addPrompt(prompt)
-  }
-}
-
-export const importOAIConfigs = async (configs: OpenAIModelConfigs) => {
+export const importOAIConfigsV2 = async (
+  data: Models extends never ? never : any,
+  options: {
+    replaceExisting?: boolean
+    mergeData?: boolean
+  } = {}
+) => {
   const db = new OpenAIModelDb()
-  for (const config of configs) {
-    await db.create(config)
-  }
+  return db.importDataV2(data, options)
 }
 
 // Utility Functions
@@ -541,13 +315,7 @@ export const getLastChatHistory = async (history_id: string) => {
   const db = new PageAssistDatabase()
   const messages = await db.getChatHistory(history_id)
   messages.sort((a, b) => a.createdAt - b.createdAt)
-  const lastAssistantMessage = messages.findLast(
-    (message) =>
-      message.role === "assistant" &&
-      (!message.messageKind || message.messageKind === "text")
-  )
-
-  return lastAssistantMessage
+  return messages.findLast((message) => message.role === "assistant")
 }
 
 export const deleteHistoriesByDateRange = async (
@@ -607,58 +375,6 @@ export const deleteHistoriesByDateRange = async (
   return deletedIds
 }
 
-// Session Files Helper Functions
-export const getSessionFiles = async (
-  sessionId: string
-): Promise<UploadedFile[]> => {
-  const db = new PageAssistDatabase()
-  return await db.getSessionFiles(sessionId)
-}
-
-export const addFileToSession = async (
-  sessionId: string,
-  file: UploadedFile
-) => {
-  const db = new PageAssistDatabase()
-  await db.addFileToSession(sessionId, file)
-}
-
-export const removeFileFromSession = async (
-  sessionId: string,
-  fileId: string
-) => {
-  const db = new PageAssistDatabase()
-  await db.removeFileFromSession(sessionId, fileId)
-}
-
-export const updateFileInSession = async (
-  sessionId: string,
-  fileId: string,
-  updates: Partial<UploadedFile>
-) => {
-  const db = new PageAssistDatabase()
-  await db.updateFileInSession(sessionId, fileId, updates)
-}
-
-export const setRetrievalEnabled = async (
-  sessionId: string,
-  enabled: boolean
-) => {
-  const db = new PageAssistDatabase()
-  await db.setRetrievalEnabled(sessionId, enabled)
-}
-
-export const getSessionFilesInfo = async (
-  sessionId: string
-): Promise<SessionFiles | null> => {
-  const db = new PageAssistDatabase()
-  return await db.getSessionFilesInfo(sessionId)
-}
-
-export const clearSessionFiles = async (sessionId: string) => {
-  const db = new PageAssistDatabase()
-  await db.clearSessionFiles(sessionId)
-}
 export const importChatHistoryV2 = async (
   data: any[],
   options: {
@@ -668,65 +384,6 @@ export const importChatHistoryV2 = async (
 ) => {
   const chatDb = new PageAssistDatabase()
   return chatDb.importChatHistoryV2(data, options)
-}
-
-export const importPromptsV2 = async (
-  data: Prompt[],
-  options: {
-    replaceExisting?: boolean
-    mergeData?: boolean
-  } = {}
-) => {
-  const chatDb = new PageAssistDatabase()
-  return chatDb.importPromptsV2(data, options)
-}
-
-export const importOAIConfigsV2 = async (
-  data: OpenAIModelConfigs,
-  options: {
-    replaceExisting?: boolean
-    mergeData?: boolean
-  } = {}
-) => {
-  const db = new OpenAIModelDb()
-  return db.importDataV2(data, options)
-}
-
-export const exportSessionFiles = async () => {
-  const db = new PageAssistDatabase()
-  return await db.getAllSessionFiles()
-}
-
-export const importSessionFilesV2 = async (
-  data: SessionFiles[],
-  options: {
-    replaceExisting?: boolean
-    mergeData?: boolean
-  } = {}
-) => {
-  const db = new PageAssistDatabase()
-  return db.importSessionFilesV2(data, options)
-}
-
-export const importWebsharesV2 = async (
-  data: Webshare[],
-  options: {
-    replaceExisting?: boolean
-    mergeData?: boolean
-  } = {}
-) => {
-  const db = new PageAssistDatabase()
-  return db.importWebsharesV2(data, options)
-}
-
-export const exportUserSettings = async () => {
-  const db = new PageAssistDatabase()
-  return await db.getAllUserSettings()
-}
-
-export const importUserSettingsV2 = async (data: UserSettings[]) => {
-  const db = new PageAssistDatabase()
-  return db.importUserSettingsV2(data)
 }
 
 export const importProjectFoldersV2 = async (
@@ -739,8 +396,6 @@ export const importProjectFoldersV2 = async (
   const db = new PageAssistDatabase()
   return db.importProjectFoldersV2(data, options)
 }
-
-export { exportMcpServers, importMcpServersV2 }
 
 export const getProjectFolders = async (): Promise<ProjectFolders> => {
   const db = new PageAssistDatabase()
@@ -758,10 +413,7 @@ export const addProjectFolder = async (
   return folder
 }
 
-export const updateProjectFolder = async (
-  id: string,
-  title: string
-) => {
+export const updateProjectFolder = async (id: string, title: string) => {
   const db = new PageAssistDatabase()
   await db.updateProjectFolder(id, title)
 }
@@ -785,12 +437,4 @@ export const updateLastUsedModel = async (
 ) => {
   const chatDb = new PageAssistDatabase()
   return chatDb.updateLastUsedModel(history_id, model_id)
-}
-
-export const updateLastUsedPrompt = async (
-  history_id: string,
-  usedPrompt: LastUsedModelType
-) => {
-  const chatDb = new PageAssistDatabase()
-  return chatDb.updateLastUsedPrompt(history_id, usedPrompt)
 }

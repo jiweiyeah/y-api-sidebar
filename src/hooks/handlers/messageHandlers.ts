@@ -5,9 +5,7 @@ import {
   formatToMessage,
   updateMessageByIndex
 } from "@/db/dexie/helpers"
-import { validateBeforeSubmit } from "../utils/messageHelpers"
 import { generateBranchMessage } from "@/db/dexie/branch"
-import { getPromptById, getSessionFiles, UploadedFile } from "@/db"
 
 export const createRegenerateLastMessage = ({
   validateBeforeSubmitFn,
@@ -158,44 +156,26 @@ export const createBranchMessage = ({
   setHistory,
   historyId,
   getHistoryId,
-  setHistoryId,
-  setContext,
-  setSelectedSystemPrompt,
-  setSystemPrompt
+  setHistoryId
 }: {
   setMessages: (messages: Message[]) => void
   setHistory: (history: ChatHistory) => void
   historyId: string | null
   getHistoryId?: () => string | null
   setHistoryId: (id: string | null) => void
-  setSelectedSystemPrompt?: (prompt: string) => void
-  setSystemPrompt?: (prompt: string) => void
-  setContext?: (context: UploadedFile[]) => void
 }) => {
   return async (index: number) => {
     try {
       const activeHistoryId = getHistoryId?.() ?? historyId
+      if (!activeHistoryId) {
+        return
+      }
       const newBranch = await generateBranchMessage(activeHistoryId, index)
       setHistory(formatToChatHistory(newBranch.messages))
       setMessages(formatToMessage(newBranch.messages))
       setHistoryId(newBranch.history.id)
-      const systemFiles = await getSessionFiles(newBranch.history.id)
-      if (setContext) {
-        setContext(systemFiles)
-      }
-
-      const lastUsedPrompt = newBranch?.history?.last_used_prompt
-      if (lastUsedPrompt) {
-        if (lastUsedPrompt.prompt_id) {
-          const prompt = await getPromptById(lastUsedPrompt.prompt_id)
-          if (prompt) {
-            setSelectedSystemPrompt(lastUsedPrompt.prompt_id)
-          }
-        }
-        setSystemPrompt(lastUsedPrompt.prompt_content)
-      }
     } catch (e) {
-      console.log(`[branch] ${e}`)
+      console.error(`[branch] ${e}`)
     }
   }
 }

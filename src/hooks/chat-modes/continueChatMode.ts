@@ -1,10 +1,5 @@
-import { cleanUrl } from "~/libs/clean-url"
-import {
-  getOllamaURL,
-  systemPromptForNonRagOption
-} from "~/services/ollama"
+import { systemPromptForNonRagOption } from "~/services/ollama"
 import { type ChatHistory, type Message } from "~/store/option"
-import { getPromptById } from "@/db/dexie/helpers"
 import { generateHistory } from "@/utils/generate-history"
 import { pageAssistModel } from "@/models"
 import {
@@ -20,7 +15,6 @@ export const continueChatMode = async (
   signal: AbortSignal,
   {
     selectedModel,
-    selectedSystemPrompt,
     currentChatModelSettings,
     setMessages,
     saveMessageOnSuccess,
@@ -33,7 +27,6 @@ export const continueChatMode = async (
     setHistoryId
   }: {
     selectedModel: string
-    selectedSystemPrompt: string
     currentChatModelSettings: any
     setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void
     saveMessageOnSuccess: (data: any) => Promise<string | null>
@@ -46,14 +39,9 @@ export const continueChatMode = async (
     setHistoryId: (id: string) => void
   }
 ) => {
-  console.log("Using continueChatMode")
-  const url = await getOllamaURL()
-  let promptId: string | undefined = selectedSystemPrompt
-  let promptContent: string | undefined = undefined
 
   const ollama = await pageAssistModel({
-    model: selectedModel!,
-    baseUrl: cleanUrl(url)
+    model: selectedModel!
   })
 
   let newMessage: Message[] = []
@@ -72,11 +60,10 @@ export const continueChatMode = async (
 
   try {
     const prompt = await systemPromptForNonRagOption()
-    const selectedPrompt = await getPromptById(selectedSystemPrompt)
 
     const applicationChatHistory = await generateHistory(history, selectedModel)
 
-    if (prompt && !selectedPrompt) {
+    if (prompt) {
       applicationChatHistory.unshift(
         await systemPromptFormatter({
           content: prompt
@@ -88,22 +75,12 @@ export const continueChatMode = async (
       currentChatModelSettings.systemPrompt &&
       currentChatModelSettings.systemPrompt?.trim().length > 0
 
-    if (!isTempSystemprompt && selectedPrompt) {
-      applicationChatHistory.unshift(
-        await systemPromptFormatter({
-          content: selectedPrompt.content
-        })
-      )
-      promptContent = selectedPrompt.content
-    }
-
     if (isTempSystemprompt) {
       applicationChatHistory.unshift(
         await systemPromptFormatter({
           content: currentChatModelSettings.systemPrompt
         })
       )
-      promptContent = currentChatModelSettings.systemPrompt
     }
 
     let generationInfo: any | undefined = undefined
@@ -212,8 +189,6 @@ export const continueChatMode = async (
       fullText,
       source: [],
       generationInfo,
-      prompt_content: promptContent,
-      prompt_id: promptId,
       reasoning_time_taken: timetaken,
       isContinue: true
     })
@@ -232,9 +207,7 @@ export const continueChatMode = async (
       setHistoryId,
       userMessage: "",
       isRegenerating: false,
-      isContinue: true,
-      prompt_content: promptContent,
-      prompt_id: promptId
+      isContinue: true
     })
 
     if (!errorSave) {

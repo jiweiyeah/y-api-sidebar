@@ -1,10 +1,4 @@
 {
-  "ollamaState": {
-    "searching": "מחפש את ה-Ollama שלך 🦙",
-    "running": "Ollama פועל 🦙",
-    "notRunning": "לא ניתן להתחבר ל-Ollama 🦙",
-    "connectionError": "נראה שיש לך שגיאת חיבור. אנא עיין בתיעוד <anchor>זה</anchor> לפתרון בעיות."
-  },
   "formError": {
     "noModel": "אנא בחר מודל",
     "noEmbeddingModel": "אנא הגדר מודל הטמעה (Embedding) בדף הגדרות > RAG"
@@ -46,7 +40,6 @@
   "sendWhenEnter": "שלח בלחיצה על Enter",
   "welcome": "שלום! איך אני יכול לעזור לך היום?",
   "useOCR": "חלץ טקסט מתמונה (OCR)",
-  "fileRetrievalEnabled": "אפשר RAG עבור מסמכים",
   "yapiSetup": {
     "hint": "הוסף את מפתח Y-API שלך כדי לשוחח על כל עמוד.",
     "button": "הוסף מפתח",

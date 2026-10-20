@@ -145,5 +145,7 @@
   "downloading": "Downloader",
   "cancelPullingModel": {
     "confirm": "Er du sikker på, at du vil annullere downloadet? Dette stopper downloadprocessen. Ifølge Ollama-dokumentationen kan du genoptage, hvor du slap."
-  }
+  },
+  "more": "More",
+  "goBack": "Go back"
 }

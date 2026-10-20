@@ -5,28 +5,15 @@ import topLevelAwait from "vite-plugin-top-level-await"
 const chromeMV3Permissions = [
   "storage",
   "sidePanel",
-  "activeTab",
-  "scripting",
-  "declarativeNetRequest",
-  "action",
   "unlimitedStorage",
-  "contextMenus",
-  "tts",
-  "notifications"
+  "contextMenus"
 ]
 
 const firefoxMV2Permissions = [
   "storage",
-  "activeTab",
-  "scripting",
   "unlimitedStorage",
   "contextMenus",
-  "webRequest",
-  "webRequestBlocking",
-  "notifications",
-  "http://*/*",
-  "https://*/*",
-  "file://*/*"
+  "https://api.y-api.bestvirtualgoods.com/*"
 ]
 
 // See https://wxt.dev/api/config.html
@@ -71,7 +58,7 @@ export default defineConfig({
         : undefined,
     host_permissions:
       process.env.TARGET !== "firefox"
-        ? ["http://*/*", "https://*/*", "file://*/*"]
+        ? ["https://api.y-api.bestvirtualgoods.com/*"]
         : undefined,
     commands: {
       _execute_action: {
