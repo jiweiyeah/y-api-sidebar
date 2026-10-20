@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next"
 import { Descriptions } from "antd"
 import { Y_API_SITE_URL } from "@/utils/oai-api-providers"
 
+const linkClass = "text-blue-500 dark:text-blue-400"
+
 export const AboutApp = () => {
   const { t } = useTranslation("settings")
   const chromeVersion = browser.runtime.getManifest().version
@@ -27,7 +29,7 @@ export const AboutApp = () => {
                   href={Y_API_SITE_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-500 dark:text-blue-400">
+                  className={linkClass}>
                   {Y_API_SITE_URL}
                 </a>
               )
@@ -40,8 +42,34 @@ export const AboutApp = () => {
                   href={`${Y_API_SITE_URL}app/keys`}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-500 dark:text-blue-400">
+                  className={linkClass}>
                   {`${Y_API_SITE_URL}app/keys`}
+                </a>
+              )
+            },
+            {
+              key: 4,
+              label: "Support",
+              children: (
+                <a
+                  href={`${Y_API_SITE_URL}app/support`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={linkClass}>
+                  {`${Y_API_SITE_URL}app/support`}
+                </a>
+              )
+            },
+            {
+              key: 5,
+              label: "Source code",
+              children: (
+                <a
+                  href="https://github.com/jiweiyeah/y-api-sidebar"
+                  target="_blank"
+                  rel="noreferrer"
+                  className={linkClass}>
+                  github.com/jiweiyeah/y-api-sidebar
                 </a>
               )
             }
@@ -49,8 +77,23 @@ export const AboutApp = () => {
         />
         <div>
           <p className="text-sm text-gray-700 dark:text-gray-400">
-            Y-API Sidebar is built on the open-source Page Assist project
-            (MIT licensed, © 2023 Muhammed Nazeem) and is distributed by Y-API.
+            Y-API Sidebar is distributed by{" "}
+            <a
+              href={Y_API_SITE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className={linkClass}>
+              Y-API
+            </a>
+            . Built on the open-source{" "}
+            <a
+              href="https://github.com/n4ze3m/page-assist"
+              target="_blank"
+              rel="noreferrer"
+              className={linkClass}>
+              Page Assist
+            </a>{" "}
+            project (MIT licensed, © 2023 Muhammed Nazeem).
           </p>
         </div>
       </div>

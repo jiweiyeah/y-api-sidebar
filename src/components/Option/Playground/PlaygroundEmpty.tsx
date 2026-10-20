@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { fetchChatModels } from "~/services/ollama"
+import { Y_API_SITE_URL } from "@/utils/oai-api-providers"
 
 export const PlaygroundEmpty = () => {
   const { t } = useTranslation(["playground", "common"])
@@ -43,6 +44,13 @@ export const PlaygroundEmpty = () => {
               className="ml-1 text-blue-600 dark:text-blue-400 underline">
               {t("yapiSetup.button", "Add API key")}
             </Link>
+            <a
+              href={`${Y_API_SITE_URL}app/keys`}
+              target="_blank"
+              rel="noreferrer"
+              className="ml-1 text-blue-600 dark:text-blue-400 underline">
+              {t("yapiSetup.getKey", "Get a key at Y-API")}
+            </a>
           </p>
         )}
       </div>

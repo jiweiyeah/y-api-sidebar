@@ -4,7 +4,7 @@
 **Applies to: Y-API Sidebar, Chrome extension version 1.0.0 and later**
 
 This policy is published at
-`https://jiweiyeah.github.io/y-api-sidebar/privacy.html` and is the version
+[jiweiyeah.github.io/y-api-sidebar/privacy.html](https://jiweiyeah.github.io/y-api-sidebar/privacy.html) and is the version
 submitted to the Chrome Web Store.
 
 ---
@@ -21,7 +21,7 @@ We do not run analytics, telemetry, crash reporting or remote config.
 
 ## 1. Who we are
 
-Y-API Sidebar is published by Y-API (`https://y-api.bestvirtualgoods.com/`).
+Y-API Sidebar is published by Y-API ([y-api.bestvirtualgoods.com](https://y-api.bestvirtualgoods.com/)).
 For privacy questions, use the support link on that site.
 
 The extension is a fork of the open-source Page Assist project (MIT licence,
@@ -60,12 +60,12 @@ When you send a message, the extension transmits:
 - your API key, in the `Authorization` header.
 
 These go to the endpoint configured in Settings → OpenAI Compatible API. The
-default is `https://api.y-api.bestvirtualgoods.com/v1`, operated by Y-API. You
+default is [api.y-api.bestvirtualgoods.com/v1](https://api.y-api.bestvirtualgoods.com/v1), operated by Y-API. You
 may point it at any other OpenAI-compatible endpoint, including one you host
 yourself; in that case that operator's policy applies instead of ours.
 
 Y-API's handling of API requests is governed by the terms published at
-`https://y-api.bestvirtualgoods.com/`.
+[y-api.bestvirtualgoods.com](https://y-api.bestvirtualgoods.com/).
 
 ### 3.2 Web search (optional, off unless you enable it)
 
@@ -105,7 +105,7 @@ Data lives on your device and is retained until you delete it. You can:
 
 - delete individual conversations from the sidebar,
 - clear everything via Settings → General → Export/Import or by uninstalling,
-- revoke your API key at `https://y-api.bestvirtualgoods.com/app/keys`, which
+- revoke your API key at [y-api.bestvirtualgoods.com/app/keys](https://y-api.bestvirtualgoods.com/app/keys), which
   immediately stops it working for this and any other client.
 
 Because we never receive your chat data, there is nothing for us to delete on
@@ -126,5 +126,5 @@ change means you accept the updated policy.
 
 ## 9. Contact
 
-Support: `https://y-api.bestvirtualgoods.com/app/support`
-Issues: `https://github.com/jiweiyeah/y-api-sidebar/issues`
+Support: [y-api.bestvirtualgoods.com/app/support](https://y-api.bestvirtualgoods.com/app/support)
+Issues: [github.com/jiweiyeah/y-api-sidebar/issues](https://github.com/jiweiyeah/y-api-sidebar/issues)

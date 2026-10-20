@@ -364,7 +364,7 @@ export const EmptySidePanel = () => {
               {t("yapiSetup.button", "Add API key")}
             </button>
             <a
-              href={Y_API_SITE_URL}
+              href={`${Y_API_SITE_URL}app/keys`}
               target="_blank"
               rel="noreferrer"
               className="text-xs text-blue-600 dark:text-blue-400 underline">
