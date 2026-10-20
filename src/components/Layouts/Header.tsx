@@ -247,6 +247,8 @@ export const Header: React.FC<Props> = ({
               <a
                 href={Y_API_SITE_URL}
                 target="_blank"
+                rel="noreferrer"
+                aria-label="Y-API website"
                 className="!text-gray-500 hidden lg:block dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <GlobeIcon className="w-6 h-6" />
               </a>
